@@ -1,0 +1,4 @@
+import {requireChatGPTUser} from '../chatgpt-auth';
+import {products,money} from '../catalog';
+export const dynamic='force-dynamic';
+export default async function Admin(){const user=await requireChatGPTUser('/admin');const allowed=user.userId===process.env.ADMIN_USER_ID;if(!allowed)return <main className="panel"><a className="logo" href="/">somimall<i/></a><h1>접근할 수 없습니다</h1><p className="error">소미몰 운영자 계정만 이용할 수 있습니다.</p><a href="/">← 쇼핑몰로 돌아가기</a></main>;return <main className="panel"><a className="logo" href="/">somimall<i/></a><h1>상품 운영</h1><p className="note">운영자 전용 화면입니다. 현재 공개된 프리뷰 상품 {products.length}개를 확인할 수 있습니다.</p>{products.map(p=><div className="row" key={p.id}><img src={p.image} alt=""/><div><b>{p.name}</b><p>{p.brand} · {p.category} · {money(p.price)}원</p></div><span>준비 중</span></div>)}<p><a href="/">← 공개 쇼핑몰 보기</a></p></main>}

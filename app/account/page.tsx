@@ -1,0 +1,3 @@
+import {chatGPTSignInPath,chatGPTSignOutPath,getChatGPTUser} from '../chatgpt-auth';
+export const dynamic='force-dynamic';
+export default async function Account(){const user=await getChatGPTUser();return <main className="panel"><a className="logo" href="/">somimall<i/></a><h1>마이 소미</h1>{user?<><p className="note">{user.displayName}님, 반가워요.</p><div className="row"><div><b>주문 내역</b><p>아직 주문 내역이 없습니다.</p></div></div><div className="row"><div><b>찜한 상품</b><p>마음에 드는 상품을 모아보세요.</p></div></div><a className="solid" href={chatGPTSignOutPath('/')} target="_top">로그아웃</a></>:<><p>로그인하면 주문과 찜 목록을 한곳에서 확인할 수 있어요.</p><a className="solid" href={chatGPTSignInPath('/account')} target="_top">ChatGPT로 로그인</a></>}<p><a href="/">← 쇼핑 계속하기</a></p></main>}
