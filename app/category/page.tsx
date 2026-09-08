@@ -1,0 +1,1 @@
+import {products as samples} from '@/app/catalog';import {listStoreProducts} from '@/db/products';import StoreView from '@/app/components/store-view';export const dynamic='force-dynamic';export default async function Page(){let products=samples;try{const saved=await listStoreProducts();if(saved.length)products=saved}catch{}return <StoreView mode="category" products={products}/>}
