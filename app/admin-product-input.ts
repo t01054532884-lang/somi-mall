@@ -11,6 +11,7 @@ export type ProductInput = {
   badge: string;
   todayDispatch: boolean;
   active: boolean;
+  saleStatus: '판매중' | '품절' | '판매 준비';
   sortOrder: number;
 };
 
@@ -25,6 +26,8 @@ export function parseProductInput(formData: FormData): ProductInput {
   const imageUrl = requiredText(formData, 'imageUrl', 500);
   const parsedUrl = new URL(imageUrl);
   if (parsedUrl.protocol !== 'https:') throw new Error('상품 이미지는 HTTPS 주소만 사용할 수 있습니다.');
+  const saleStatus = formText(formData, 'saleStatus');
+  if (!['판매중','품절','판매 준비'].includes(saleStatus)) throw new Error('판매 상태를 선택해 주세요.');
 
   return {
     name,
@@ -41,6 +44,7 @@ export function parseProductInput(formData: FormData): ProductInput {
     badge: optionalText(formData, 'badge', 30) || '소미 셀렉트',
     todayDispatch: formData.get('todayDispatch') === 'on',
     active: formData.get('active') === 'on',
+    saleStatus: saleStatus as ProductInput['saleStatus'],
     sortOrder: integer(formData, 'sortOrder'),
   };
 }

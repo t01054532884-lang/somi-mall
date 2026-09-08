@@ -1,0 +1,1 @@
+ALTER TABLE `products` ADD `sale_status` text DEFAULT '판매중' NOT NULL;

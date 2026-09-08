@@ -43,6 +43,7 @@ export const products = sqliteTable(
       .notNull()
       .default(false),
     active: integer('active', { mode: 'boolean' }).notNull().default(true),
+    saleStatus: text('sale_status').notNull().default('판매중'),
     sortOrder: integer('sort_order').notNull().default(0),
     createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
