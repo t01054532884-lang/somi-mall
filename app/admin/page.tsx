@@ -3,6 +3,7 @@ import { getAdminUser } from '../admin-auth';
 import { chatGPTSignInPath, chatGPTSignOutPath, getChatGPTUser } from '../chatgpt-auth';
 import { listAdminProducts } from '@/db/products';
 import LoginForm from './login-form';
+import ImageUploader from './image-uploader';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,7 +43,7 @@ function ProductFields({ product }: { product?: Awaited<ReturnType<typeof listAd
     <label className="field">판매가<input name="price" type="number" min="0" required defaultValue={product?.price ?? 0} /></label>
     <label className="field">정가<input name="originalPrice" type="number" min="0" required defaultValue={product?.original ?? 0} /></label>
     <label className="field">진열 순서<input name="sortOrder" type="number" required defaultValue={product?.sortOrder ?? 0} /></label>
-    <label className="field admin-wide">이미지 주소<input name="imageUrl" type="url" required placeholder="https://..." defaultValue={product?.image} /></label>
+    <ImageUploader value={product?.image} />
     <label className="field">색상(쉼표로 구분)<input name="colors" defaultValue={product?.colors.join(', ')} /></label>
     <label className="field">상품 배지<input name="badge" maxLength={30} defaultValue={product?.badge ?? '소미 셀렉트'} /></label>
     <label className="check"><input name="todayDispatch" type="checkbox" defaultChecked={product?.todayDispatch} /> 오늘출발</label>
