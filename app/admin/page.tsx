@@ -2,6 +2,7 @@
 import { getAdminUser } from '../admin-auth';
 import { chatGPTSignInPath, chatGPTSignOutPath, getChatGPTUser } from '../chatgpt-auth';
 import { listAdminProducts } from '@/db/products';
+import LoginForm from './login-form';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,7 @@ export default async function Admin({ searchParams }: AdminPageProps) {
   const signedInUser = await getChatGPTUser();
   const admin = await getAdminUser();
   const status = (await searchParams)?.status;
-  if (!admin) return <main className="panel"><a className="logo" href="/">somimall<i /></a><h1>{signedInUser ? '접근할 수 없습니다' : '운영자 로그인'}</h1><p className={signedInUser ? 'error' : 'note'}>{signedInUser ? '현재 계정은 일반회원이며 상품을 변경할 권한이 없습니다.' : '상품 변경은 소미몰 운영자 계정만 할 수 있습니다.'}</p>{signedInUser ? <a className="solid" href={chatGPTSignOutPath('/admin')} target="_top">다른 계정으로 로그인</a> : <a className="solid" href={chatGPTSignInPath('/admin')} target="_top">운영자 계정으로 로그인</a>}<p><a href="/">← 쇼핑몰로 돌아가기</a></p></main>;
+  if (!admin) return <main className="panel"><a className="logo" href="/">somimall<i /></a><h1>관리자 로그인</h1><p className="note">상품 수정은 관리자 아이디와 비밀번호가 필요합니다.</p><LoginForm/><p><a href="/">← 쇼핑몰로 돌아가기</a></p></main>;
 
   let products = [] as Awaited<ReturnType<typeof listAdminProducts>>;
   let databaseReady = true;

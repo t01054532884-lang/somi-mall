@@ -1,0 +1,2 @@
+import {cookies} from 'next/headers';
+export async function POST(request:Request){const {id,password}=await request.json() as {id?:string,password?:string};if(!process.env.ADMIN_LOGIN_ID||!process.env.ADMIN_LOGIN_PASSWORD||id!==process.env.ADMIN_LOGIN_ID||password!==process.env.ADMIN_LOGIN_PASSWORD)return Response.json({error:'아이디 또는 비밀번호가 맞지 않습니다.'},{status:401});const jar=await cookies();jar.set('somi_admin',process.env.ADMIN_SESSION_TOKEN??'',{httpOnly:true,secure:true,sameSite:'strict',path:'/',maxAge:60*60*8});return Response.json({ok:true});}
