@@ -19,6 +19,7 @@ type ProductRow = {
   today_dispatch: number;
   active: number;
   sale_status: '판매중' | '품절' | '판매 준비';
+  style_tag: '에겐녀' | '테토녀' | '미분류';
   sort_order: number;
 };
 
@@ -26,7 +27,7 @@ export async function listStoreProducts(): Promise<Product[]> {
   const result = await getD1()
     .prepare(
       `SELECT id, name, brand, category, price, original_price, image_url,
-        colors, badge, today_dispatch, active, sale_status, sort_order
+        colors, badge, today_dispatch, active, sale_status, style_tag, sort_order
        FROM products
        WHERE active = 1
        ORDER BY sort_order DESC, created_at DESC`,
@@ -39,7 +40,7 @@ export async function listAdminProducts(): Promise<AdminProduct[]> {
   const result = await getD1()
     .prepare(
       `SELECT id, name, brand, category, price, original_price, image_url,
-        colors, badge, today_dispatch, active, sale_status, sort_order
+        colors, badge, today_dispatch, active, sale_status, style_tag, sort_order
        FROM products
        ORDER BY sort_order DESC, created_at DESC`,
     )
@@ -64,6 +65,7 @@ function toProduct(row: ProductRow): Product {
     badge: row.badge,
     todayDispatch: row.today_dispatch === 1,
     saleStatus: row.sale_status,
+    styleTag: row.style_tag,
     sample: false,
   };
 }

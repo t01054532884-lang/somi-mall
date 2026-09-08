@@ -44,6 +44,7 @@ export const products = sqliteTable(
       .default(false),
     active: integer('active', { mode: 'boolean' }).notNull().default(true),
     saleStatus: text('sale_status').notNull().default('판매중'),
+    styleTag: text('style_tag').notNull().default('미분류'),
     sortOrder: integer('sort_order').notNull().default(0),
     createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),

@@ -44,6 +44,7 @@ function ProductFields({ product }: { product?: Awaited<ReturnType<typeof listAd
     <label className="field">정가<input name="originalPrice" type="number" min="0" required defaultValue={product?.original ?? 0} /></label>
     <label className="field">진열 순서<input name="sortOrder" type="number" required defaultValue={product?.sortOrder ?? 0} /></label>
     <label className="field">판매 상태<select name="saleStatus" defaultValue={product?.saleStatus ?? '판매중'}><option>판매중</option><option>품절</option><option>판매 준비</option></select></label>
+    <label className="field">스타일 분류<select name="styleTag" defaultValue={product?.styleTag ?? '미분류'}><option>미분류</option><option>에겐녀</option><option>테토녀</option></select></label>
     <ImageUploader value={product?.image} />
     <label className="field">색상(쉼표로 구분)<input name="colors" defaultValue={product?.colors.join(', ')} /></label>
     <label className="field">상품 배지<input name="badge" maxLength={30} defaultValue={product?.badge ?? '소미 셀렉트'} /></label>

@@ -20,14 +20,14 @@ export async function POST(request: Request, context: RouteContext) {
       .prepare(
         `UPDATE products SET
           name = ?, brand = ?, category = ?, price = ?, original_price = ?,
-          image_url = ?, colors = ?, badge = ?, today_dispatch = ?, active = ?, sale_status = ?,
+          image_url = ?, colors = ?, badge = ?, today_dispatch = ?, active = ?, sale_status = ?, style_tag = ?,
           sort_order = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?`,
       )
       .bind(
         product.name, product.brand, product.category, product.price,
         product.originalPrice, product.imageUrl, JSON.stringify(product.colors),
-        product.badge, product.todayDispatch ? 1 : 0, product.active ? 1 : 0, product.saleStatus,
+        product.badge, product.todayDispatch ? 1 : 0, product.active ? 1 : 0, product.saleStatus, product.styleTag,
         product.sortOrder, id,
       )
       .run();
