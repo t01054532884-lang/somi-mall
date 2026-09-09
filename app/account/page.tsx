@@ -1,5 +1,6 @@
 /* oxlint-disable next/no-html-link-for-pages, next/no-img-element */
 import { getMemberSession } from '../google-auth';
+import { getAdminUser } from '../admin-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,7 +9,7 @@ type AccountPageProps = {
 };
 
 export default async function Account({ searchParams }: AccountPageProps) {
-  const user = await getMemberSession();
+  const [user, admin] = await Promise.all([getMemberSession(), getAdminUser()]);
   const error = (await searchParams)?.error;
   return (
     <main className="panel">
@@ -17,6 +18,7 @@ export default async function Account({ searchParams }: AccountPageProps) {
       </a>
       <h1>마이 소미몰</h1>
       {error ? <p className="error">{error}</p> : null}
+      {admin ? <a className="account-admin-link" href="/admin"><b>관리자 계정</b><span>상품·리뷰·문의 관리하기 →</span></a> : null}
       {user ? (
         <>
           <section className="account-profile">

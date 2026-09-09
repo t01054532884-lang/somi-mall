@@ -1,5 +1,6 @@
 import { env } from 'cloudflare:workers';
 import { getChatGPTUser, type ChatGPTUser } from './chatgpt-auth';
+import { getMemberSession } from './google-auth';
 import { cookies } from 'next/headers';
 
 type AdminEnvironment = {
@@ -14,17 +15,27 @@ export async function getAdminUser(): Promise<ChatGPTUser | null> {
   if (sessionToken && (await cookies()).get('somi_admin')?.value === sessionToken) {
     return { userId: 'password-admin', displayName: '소미몰 운영자', email: 'admin@somimall.local', fullName: '소미몰 운영자' };
   }
-  const user = await getChatGPTUser();
-  if (!user) return null;
-
   const adminId = runtime.ADMIN_USER_ID ?? process.env.ADMIN_USER_ID;
   const adminEmail = runtime.ADMIN_EMAIL ?? process.env.ADMIN_EMAIL;
-  const idMatches = Boolean(adminId && user.userId === adminId);
-  const emailMatches = Boolean(
-    adminEmail && user.email.toLowerCase() === adminEmail.toLowerCase(),
-  );
+  const chatGPTUser = await getChatGPTUser();
+  if (chatGPTUser) {
+    const idMatches = Boolean(adminId && chatGPTUser.userId === adminId);
+    const emailMatches = Boolean(
+      adminEmail && chatGPTUser.email.toLowerCase() === adminEmail.toLowerCase(),
+    );
+    if (idMatches || emailMatches) return chatGPTUser;
+  }
 
-  return idMatches || emailMatches ? user : null;
+  const member = await getMemberSession();
+  if (member && adminEmail && member.email.toLowerCase() === adminEmail.toLowerCase()) {
+    return {
+      userId: member.memberId,
+      displayName: member.displayName,
+      email: member.email,
+      fullName: member.displayName,
+    };
+  }
+  return null;
 }
 
 export async function requireAdminRequest(request: Request) {
