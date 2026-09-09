@@ -1,7 +1,7 @@
 /* oxlint-disable next/no-html-link-for-pages, next/no-img-element */
 import { getAdminUser } from '../admin-auth';
 import { chatGPTSignInPath, chatGPTSignOutPath, getChatGPTUser } from '../chatgpt-auth';
-import { listAdminProducts } from '@/db/products';
+import { listAdminInquiries, listAdminProducts, listAdminReviews } from '@/db/products';
 import LoginForm from './login-form';
 import ImageUploader, { DetailImageUploader } from './image-uploader';
 
@@ -11,6 +11,8 @@ type AdminPageProps = { searchParams?: Promise<{ status?: string }> };
 const messages: Record<string, string> = {
   created: '상품을 등록했습니다.', updated: '상품 정보를 저장했습니다.',
   deleted: '상품을 삭제했습니다.', error: '상품 정보를 처리하지 못했습니다. 입력 내용을 확인해 주세요.',
+  review_replied: '리뷰 답글을 저장했습니다.', review_deleted: '리뷰를 삭제했습니다.',
+  inquiry_answered: '문의 답변을 저장했습니다.', inquiry_deleted: '문의를 삭제했습니다.',
 };
 
 export default async function Admin({ searchParams }: AdminPageProps) {
@@ -20,8 +22,10 @@ export default async function Admin({ searchParams }: AdminPageProps) {
   if (!admin) return <main className="panel"><a className="logo" href="/">somimall<i /></a><h1>관리자 로그인</h1><p className="note">상품 수정은 관리자 아이디와 비밀번호가 필요합니다.</p><LoginForm/><p><a href="/">← 쇼핑몰로 돌아가기</a></p></main>;
 
   let products = [] as Awaited<ReturnType<typeof listAdminProducts>>;
+  let reviews = [] as Awaited<ReturnType<typeof listAdminReviews>>;
+  let inquiries = [] as Awaited<ReturnType<typeof listAdminInquiries>>;
   let databaseReady = true;
-  try { products = await listAdminProducts(); } catch (error) { databaseReady = false; console.error('Unable to load admin products', error); }
+  try { [products,reviews,inquiries] = await Promise.all([listAdminProducts(),listAdminReviews(),listAdminInquiries()]); } catch (error) { databaseReady = false; console.error('Unable to load admin data', error); }
 
   return <main className="admin-shell">
     <header className="admin-header"><div><a className="logo" href="/">somimall<i /></a><p>운영자 전용 상품 관리</p></div><span>{admin.email}</span></header>
@@ -31,7 +35,10 @@ export default async function Admin({ searchParams }: AdminPageProps) {
     <section className="admin-products"><div className="section-head"><div><span className="eyebrow">PRODUCTS</span><h2>등록 상품</h2></div><span>{products.length}개</span></div>
       {!products.length ? <p className="note">아직 데이터베이스에 등록된 상품이 없습니다.</p> : null}
       {products.map((product) => <details className="admin-card" key={product.id}><summary><img src={product.image} alt="" /><span><b>{product.name}</b><small>{product.brand} · {product.price.toLocaleString('ko-KR')}원</small></span><em>{product.active ? '판매중' : '숨김'}</em></summary><form className="admin-form" action={`/api/admin/products/${encodeURIComponent(product.id)}`} method="post"><ProductFields product={product} /><div className="admin-actions"><button className="solid" type="submit">변경 저장</button><button className="danger" type="submit" name="_action" value="delete">상품 삭제</button></div></form></details>)}
-    </section><p><a href="/">← 공개 쇼핑몰 보기</a></p>
+    </section>
+    <section className="admin-feedback" id="reviews"><div className="section-head"><div><span className="eyebrow">REVIEWS</span><h2>리뷰 관리</h2></div><span>{reviews.length}개</span></div>{!reviews.length?<p className="note">등록된 리뷰가 없습니다.</p>:null}{reviews.map(review=><article className="admin-card feedback-card" key={review.id}><header><div><b>{review.productName}</b><small>{review.memberName} · {'★'.repeat(review.rating)}{'☆'.repeat(5-review.rating)} · {adminDate(review.createdAt)}</small></div><a href={`/product/${review.productId}#reviews`}>상품에서 보기</a></header><p>{review.content}</p><form action={`/api/admin/reviews/${review.id}`} method="post"><label className="field">관리자 답글<textarea name="reply" rows={3} maxLength={1000} defaultValue={review.adminReply} placeholder="고객에게 보여줄 답글을 작성하세요."/></label><div className="admin-actions"><button className="solid" type="submit">답글 저장</button><button className="danger" type="submit" name="_action" value="delete">리뷰 삭제</button></div></form></article>)}</section>
+    <section className="admin-feedback" id="inquiries"><div className="section-head"><div><span className="eyebrow">INQUIRIES</span><h2>문의 답변</h2></div><span>{inquiries.length}개</span></div>{!inquiries.length?<p className="note">등록된 문의가 없습니다.</p>:null}{inquiries.map(inquiry=><article className="admin-card feedback-card" key={inquiry.id}><header><div><b>{inquiry.productName}</b><small>{inquiry.memberName} · {adminDate(inquiry.createdAt)}</small></div><a href={`/product/${inquiry.productId}#inquiries`}>상품에서 보기</a></header><p><b>Q.</b> {inquiry.content}</p><form action={`/api/admin/inquiries/${inquiry.id}`} method="post"><label className="field">답변<textarea name="answer" rows={4} required minLength={2} maxLength={1000} defaultValue={inquiry.answer} placeholder="문의에 대한 답변을 작성하세요."/></label><div className="admin-actions"><button className="solid" type="submit">답변 저장</button><button className="danger" type="submit" name="_action" value="delete">문의 삭제</button></div></form></article>)}</section>
+    <p><a href="/">← 공개 쇼핑몰 보기</a></p>
   </main>;
 }
 
@@ -62,3 +69,4 @@ function ProductFields({ product }: { product?: Awaited<ReturnType<typeof listAd
 }
 
 function sizeChartToText(rows:Awaited<ReturnType<typeof listAdminProducts>>[number]['sizeChart']){return (rows??[]).map(row=>[row.size,row.totalLength,row.shoulder,row.chest,row.sleeve,row.sleeveOpening,row.armhole,row.hem].join(' | ')).join('\n')}
+function adminDate(value:string){return new Intl.DateTimeFormat('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(value))}

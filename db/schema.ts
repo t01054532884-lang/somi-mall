@@ -68,7 +68,7 @@ export const products = sqliteTable(
 );
 
 export const reviews = sqliteTable('reviews',{
-  id:text('id').primaryKey(),productId:text('product_id').notNull(),memberId:text('member_id').notNull(),memberName:text('member_name').notNull(),rating:integer('rating').notNull(),content:text('content').notNull(),createdAt:text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  id:text('id').primaryKey(),productId:text('product_id').notNull(),memberId:text('member_id').notNull(),memberName:text('member_name').notNull(),rating:integer('rating').notNull(),content:text('content').notNull(),adminReply:text('admin_reply').notNull().default(''),createdAt:text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 },(table)=>[uniqueIndex('idx_reviews_product_member').on(table.productId,table.memberId)]);
 
 export const inquiries = sqliteTable('product_inquiries',{
