@@ -1,4 +1,4 @@
-import { getGoogleAuthConfig, stateCookie } from '@/app/google-auth';
+import { getGoogleAuthConfig, returnCookie, stateCookie } from '@/app/google-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,6 +7,7 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const redirectUri = new URL('/api/auth/google/callback', requestUrl.origin);
   const state = crypto.randomUUID();
+  const returnTo = requestUrl.searchParams.get('returnTo') ?? '/account';
   const googleUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   googleUrl.searchParams.set('client_id', clientId);
   googleUrl.searchParams.set('redirect_uri', redirectUri.toString());
@@ -15,11 +16,9 @@ export async function GET(request: Request) {
   googleUrl.searchParams.set('state', state);
   googleUrl.searchParams.set('prompt', 'select_account');
 
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: googleUrl.toString(),
-      'Set-Cookie': stateCookie(state, requestUrl.protocol === 'https:'),
-    },
-  });
+  const secure = requestUrl.protocol === 'https:';
+  const headers = new Headers({ Location: googleUrl.toString() });
+  headers.append('Set-Cookie', stateCookie(state, secure));
+  headers.append('Set-Cookie', returnCookie(returnTo, secure));
+  return new Response(null, { status: 302, headers });
 }

@@ -14,6 +14,8 @@ type ProductRow = {
   price: number;
   original_price: number;
   image_url: string;
+  description: string; detail_images: string; material: string; origin: string; manufacturer: string; size_chart: string;
+  seller_name: string; seller_representative: string; seller_address: string; seller_business_number: string; seller_mail_order_number: string; seller_email: string; seller_phone: string;
   colors: string;
   badge: string;
   today_dispatch: number;
@@ -27,6 +29,9 @@ export async function listStoreProducts(): Promise<Product[]> {
   const result = await getD1()
     .prepare(
       `SELECT id, name, brand, category, price, original_price, image_url,
+        description, detail_images, material, origin, manufacturer, size_chart,
+        seller_name, seller_representative, seller_address, seller_business_number,
+        seller_mail_order_number, seller_email, seller_phone,
         colors, badge, today_dispatch, active, sale_status, style_tag, sort_order
        FROM products
        WHERE active = 1
@@ -40,6 +45,9 @@ export async function listAdminProducts(): Promise<AdminProduct[]> {
   const result = await getD1()
     .prepare(
       `SELECT id, name, brand, category, price, original_price, image_url,
+        description, detail_images, material, origin, manufacturer, size_chart,
+        seller_name, seller_representative, seller_address, seller_business_number,
+        seller_mail_order_number, seller_email, seller_phone,
         colors, badge, today_dispatch, active, sale_status, style_tag, sort_order
        FROM products
        ORDER BY sort_order DESC, created_at DESC`,
@@ -61,6 +69,13 @@ function toProduct(row: ProductRow): Product {
     price: row.price,
     original: row.original_price,
     image: row.image_url,
+    description: row.description,
+    detailImages: parseArray(row.detail_images),
+    material: row.material,
+    origin: row.origin,
+    manufacturer: row.manufacturer,
+    sizeChart: parseSizeChart(row.size_chart),
+    seller:{name:row.seller_name,representative:row.seller_representative,address:row.seller_address,businessNumber:row.seller_business_number,mailOrderNumber:row.seller_mail_order_number,email:row.seller_email,phone:row.seller_phone},
     colors: parseColors(row.colors),
     badge: row.badge,
     todayDispatch: row.today_dispatch === 1,
@@ -71,6 +86,10 @@ function toProduct(row: ProductRow): Product {
 }
 
 function parseColors(value: string): string[] {
+  return parseArray(value);
+}
+
+function parseArray(value:string):string[]{
   try {
     const parsed = JSON.parse(value);
     return Array.isArray(parsed)
@@ -80,3 +99,10 @@ function parseColors(value: string): string[] {
     return [];
   }
 }
+
+function parseSizeChart(value:string){try{const parsed=JSON.parse(value);return Array.isArray(parsed)?parsed:[]}catch{return []}}
+
+export type ProductReview={id:string;memberName:string;rating:number;content:string;createdAt:string};
+export async function listProductReviews(productId:string):Promise<ProductReview[]>{const result=await getD1().prepare('SELECT id, member_name, rating, content, created_at FROM reviews WHERE product_id = ? ORDER BY created_at DESC').bind(productId).all<{id:string;member_name:string;rating:number;content:string;created_at:string}>();return result.results.map(r=>({id:r.id,memberName:r.member_name,rating:r.rating,content:r.content,createdAt:r.created_at}))}
+export type ProductInquiry={id:string;memberName:string;content:string;answer:string;createdAt:string};
+export async function listProductInquiries(productId:string):Promise<ProductInquiry[]>{const result=await getD1().prepare('SELECT id, member_name, content, answer, created_at FROM product_inquiries WHERE product_id = ? ORDER BY created_at DESC').bind(productId).all<{id:string;member_name:string;content:string;answer:string;created_at:string}>();return result.results.map(r=>({id:r.id,memberName:r.member_name,content:r.content,answer:r.answer,createdAt:r.created_at}))}

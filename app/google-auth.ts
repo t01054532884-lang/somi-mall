@@ -4,6 +4,7 @@ import { cookies } from 'next/headers';
 
 const SESSION_COOKIE = 'somimall_session';
 export const OAUTH_STATE_COOKIE = 'somimall_google_state';
+export const OAUTH_RETURN_COOKIE = 'somimall_google_return';
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const GOOGLE_JWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/oauth2/v3/certs'),
@@ -115,6 +116,10 @@ export function stateCookie(state: string, secure: boolean) {
 export function clearStateCookie(secure: boolean) {
   return serializeCookie(OAUTH_STATE_COOKIE, '', 0, secure);
 }
+
+export function returnCookie(returnTo:string,secure:boolean){return serializeCookie(OAUTH_RETURN_COOKIE,safeReturnTo(returnTo),600,secure)}
+export function clearReturnCookie(secure:boolean){return serializeCookie(OAUTH_RETURN_COOKIE,'',0,secure)}
+export function safeReturnTo(value:string){if(!value.startsWith('/')||value.startsWith('//'))return '/account';try{const url=new URL(value,'https://somimall.local');return url.origin==='https://somimall.local'?`${url.pathname}${url.search}${url.hash}`:'/account'}catch{return '/account'}}
 
 export function readCookie(request: Request, name: string) {
   for (const pair of (request.headers.get('cookie') ?? '').split(';')) {

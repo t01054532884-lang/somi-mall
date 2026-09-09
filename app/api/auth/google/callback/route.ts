@@ -1,9 +1,12 @@
 import {
   OAUTH_STATE_COOKIE,
   clearStateCookie,
+  clearReturnCookie,
   createSessionToken,
   getGoogleAuthConfig,
   readCookie,
+  OAUTH_RETURN_COOKIE,
+  safeReturnTo,
   sessionCookie,
   verifyGoogleIdToken,
 } from '@/app/google-auth';
@@ -73,11 +76,11 @@ export async function GET(request: Request) {
       displayName: googleUser.displayName,
       avatarUrl: googleUser.avatarUrl,
     });
-    const headers = new Headers({
-      Location: new URL('/account', requestUrl.origin).toString(),
-    });
+    const returnTo=safeReturnTo(readCookie(request,OAUTH_RETURN_COOKIE)??'/account');
+    const headers = new Headers({Location:new URL(returnTo,requestUrl.origin).toString()});
     headers.append('Set-Cookie', sessionCookie(token, secure));
     headers.append('Set-Cookie', clearStateCookie(secure));
+    headers.append('Set-Cookie', clearReturnCookie(secure));
     return new Response(null, { status: 302, headers });
   } catch (error) {
     console.error('Google login failed', error);

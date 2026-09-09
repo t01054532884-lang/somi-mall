@@ -20,13 +20,19 @@ export async function POST(request: Request, context: RouteContext) {
       .prepare(
         `UPDATE products SET
           name = ?, brand = ?, category = ?, price = ?, original_price = ?,
-          image_url = ?, colors = ?, badge = ?, today_dispatch = ?, active = ?, sale_status = ?, style_tag = ?,
+          image_url = ?, description = ?, detail_images = ?, material = ?, origin = ?, manufacturer = ?, size_chart = ?,
+          seller_name = ?, seller_representative = ?, seller_address = ?, seller_business_number = ?,
+          seller_mail_order_number = ?, seller_email = ?, seller_phone = ?, colors = ?, badge = ?, today_dispatch = ?, active = ?, sale_status = ?, style_tag = ?,
           sort_order = ?, updated_at = CURRENT_TIMESTAMP
         WHERE id = ?`,
       )
       .bind(
         product.name, product.brand, product.category, product.price,
-        product.originalPrice, product.imageUrl, JSON.stringify(product.colors),
+        product.originalPrice, product.imageUrl, product.description, JSON.stringify(product.detailImages),
+        product.material, product.origin, product.manufacturer, JSON.stringify(product.sizeChart),
+        product.sellerName, product.sellerRepresentative, product.sellerAddress,
+        product.sellerBusinessNumber, product.sellerMailOrderNumber, product.sellerEmail, product.sellerPhone,
+        JSON.stringify(product.colors),
         product.badge, product.todayDispatch ? 1 : 0, product.active ? 1 : 0, product.saleStatus, product.styleTag,
         product.sortOrder, id,
       )

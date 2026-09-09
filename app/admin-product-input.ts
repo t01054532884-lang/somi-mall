@@ -14,6 +14,8 @@ export type ProductInput = {
   saleStatus: '판매중' | '품절' | '판매 준비';
   styleTag: '에겐녀' | '테토녀' | '미분류';
   sortOrder: number;
+  description:string;detailImages:string[];material:string;origin:string;manufacturer:string;sizeChart:Array<Record<string,string>>;
+  sellerName:string;sellerRepresentative:string;sellerAddress:string;sellerBusinessNumber:string;sellerMailOrderNumber:string;sellerEmail:string;sellerPhone:string;
 };
 
 export function parseProductInput(formData: FormData): ProductInput {
@@ -50,8 +52,16 @@ export function parseProductInput(formData: FormData): ProductInput {
     saleStatus: saleStatus as ProductInput['saleStatus'],
     styleTag: styleTag as ProductInput['styleTag'],
     sortOrder: integer(formData, 'sortOrder'),
+    description:optionalText(formData,'description',10000),
+    detailImages:parseJsonArray(formText(formData,'detailImages')),
+    material:optionalText(formData,'material',300),origin:optionalText(formData,'origin',100),manufacturer:optionalText(formData,'manufacturer',200),
+    sizeChart:parseSizeChart(formText(formData,'sizeChart')),
+    sellerName:optionalText(formData,'sellerName',120),sellerRepresentative:optionalText(formData,'sellerRepresentative',80),sellerAddress:optionalText(formData,'sellerAddress',300),sellerBusinessNumber:optionalText(formData,'sellerBusinessNumber',40),sellerMailOrderNumber:optionalText(formData,'sellerMailOrderNumber',80),sellerEmail:optionalText(formData,'sellerEmail',150),sellerPhone:optionalText(formData,'sellerPhone',40),
   };
 }
+
+function parseJsonArray(value:string):string[]{try{const parsed=JSON.parse(value);return Array.isArray(parsed)?parsed.filter((item):item is string=>typeof item==='string').slice(0,12):[]}catch{return []}}
+function parseSizeChart(value:string){return value.split(/\r?\n/).filter(Boolean).slice(0,12).map(line=>{const [size='',totalLength='',shoulder='',chest='',sleeve='',sleeveOpening='',armhole='',hem='']=line.split('|').map(x=>x.trim());return {size,totalLength,shoulder,chest,sleeve,sleeveOpening,armhole,hem}}).filter(row=>row.size)}
 
 function requiredText(formData: FormData, key: string, maxLength: number) {
   const value = optionalText(formData, key, maxLength);
