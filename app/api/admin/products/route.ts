@@ -12,14 +12,14 @@ export async function POST(request: Request) {
       .prepare(
         `INSERT INTO products (
           id, name, brand, category, price, original_price, image_url, colors,
-          badge, today_dispatch, active, sort_order, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          badge, today_dispatch, active, sale_status, style_tag, sort_order, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
       )
       .bind(
         crypto.randomUUID(), product.name, product.brand, product.category,
         product.price, product.originalPrice, product.imageUrl,
         JSON.stringify(product.colors), product.badge,
-        product.todayDispatch ? 1 : 0, product.active ? 1 : 0, product.sortOrder,
+        product.todayDispatch ? 1 : 0, product.active ? 1 : 0, product.saleStatus, product.styleTag, product.sortOrder,
       )
       .run();
     return adminRedirect(request, 'created');

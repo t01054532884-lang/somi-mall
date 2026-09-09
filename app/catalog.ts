@@ -1,4 +1,4 @@
-export type Product={id:string;name:string;brand:string;category:string;price:number;original:number;image:string;colors:string[];sample:boolean;badge?:string;todayDispatch?:boolean};
+export type Product={id:string;name:string;brand:string;category:string;price:number;original:number;image:string;colors:string[];sample:boolean;badge?:string;todayDispatch?:boolean;saleStatus?:'판매중'|'품절'|'판매 준비';styleTag?:'에겐녀'|'테토녀'|'미분류'};
 const img=(id:string)=>`https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&q=85`;
 export const products:Product[]=[
 {id:'sample-1',name:'소프트 니트 가디건',brand:'SOMI SELECT',category:'상의',price:32900,original:47000,image:img('photo-1683315565563-f72590773805'),colors:['베이지','차콜'],sample:true,badge:'오늘출발',todayDispatch:true},
