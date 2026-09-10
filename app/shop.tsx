@@ -1,12 +1,227 @@
 'use client';
-import {useEffect,useMemo,useState} from 'react';
-import {Search,ShoppingBag,Heart,UserRound,House,Grid2X2,ArrowUpRight,ArrowRight} from 'lucide-react';
-import {money,type Product} from './catalog';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Search,
+  ShoppingBag,
+  Heart,
+  UserRound,
+  House,
+  Grid2X2,
+  ArrowUpRight,
+  ArrowRight,
+} from 'lucide-react';
+import { money, type Product } from './catalog';
 
-export default function Shop({initialProducts,isAdmin=false}:{initialProducts:Product[];isAdmin?:boolean}){
- const [query,setQuery]=useState(''),[category,setCategory]=useState('전체'),[wish,setWish]=useState<string[]>([]),[viewed,setViewed]=useState<string[]>([]);
- useEffect(()=>{try{setWish(JSON.parse(localStorage.getItem('somi_wish')||'[]'));setViewed(JSON.parse(localStorage.getItem('somi_viewed')||'[]'))}catch{}},[]);useEffect(()=>{localStorage.setItem('somi_wish',JSON.stringify(wish))},[wish]);
- const filtered=useMemo(()=>initialProducts.filter(p=>(category==='전체'||p.category===category)&&`${p.name} ${p.brand}`.toLowerCase().includes(query.toLowerCase())),[initialProducts,category,query]);const status=(p:Product)=>p.saleStatus??(p.sample?'판매 준비':'판매중');const viewedProducts=viewed.map(id=>initialProducts.find(p=>p.id===id)).filter((p):p is Product=>Boolean(p)).slice(0,4);
- return <><div className="topline">나의 취향이 모이는 곳, 소미몰 <ArrowUpRight size={14}/></div><header className="header"><a className="logo" href="/">somi<span>mall</span><i/></a><div className="search"><Search size={20}/><input aria-label="상품 검색" placeholder="지금 찾고 있는 스타일은?" value={query} onChange={e=>setQuery(e.target.value)}/></div><div className="header-actions">{isAdmin?<a className="admin-shortcut" href="/admin">관리자</a>:null}<a href="/account" aria-label="로그인"><UserRound/></a><a href="/wishlist" aria-label="찜"><Heart/></a><a href="/cart" aria-label="장바구니"><ShoppingBag/></a></div></header><main className="shell"><nav className="mainnav"><b>추천</b><a href="/category">카테고리</a><a href="/category?style=에겐녀">에겐녀</a><a href="/category?style=테토녀">테토녀</a><span>FIND YOUR EVERYDAY</span></nav><section className="intro"><div><span className="eyebrow">SOMI EDIT / 01</span><h1>매일의 나를,<br/>조금 더 좋아하게.</h1><p>홍대 옷가게 직원이 답답해서 직접 차린 쇼핑몰.</p><p className="intro-description">실제 직원의 모든 경험을 토대로 핏, 가성비 ITEM, 핫 ITEM을 대방출합니다.</p><button onClick={()=>document.getElementById('catalog')?.scrollIntoView({behavior:'smooth'})}>셀렉션 만나기 <ArrowRight size={17}/></button></div><div className="intro-type">hello,<br/><em>new mood.</em><span>2026 COLLECTION</span></div></section><div className="categories">{['전체','상의','하의','아우터','가방','신발'].map(c=><button key={c} onClick={()=>setCategory(c)} className={category===c?'selected':''}>{c}</button>)}</div><section id="catalog"><div className="section-head"><div><span className="eyebrow">JUST FOR YOU</span><h2>오늘, 눈여겨볼 스타일</h2></div><span>{filtered.length}개의 상품</span></div><div className="product-grid">{filtered.map(p=><article key={p.id}><a className="product-image" href={`/product/${p.id}`}><img src={p.image} alt={p.name}/><span>{status(p)}</span></a><button className={`heart ${wish.includes(p.id)?'active':''}`} onClick={()=>setWish(v=>v.includes(p.id)?v.filter(id=>id!==p.id):[...v,p.id])} aria-label={`${p.name} 찜`}><Heart size={21} fill={wish.includes(p.id)?'currentColor':'none'}/></button><a className="product-info" href={`/product/${p.id}`}><b>{p.brand}</b><h3>{p.name}</h3><div className="price"><strong>{Math.max(0,Math.round((1-p.price/p.original)*100))}%</strong><b>{money(p.price)}</b><del>{money(p.original)}</del></div><small>{status(p)} · {p.sample?'샘플 상품':'소미몰 판매 상품'}</small></a></article>)}</div>{!filtered.length&&<p className="empty">검색한 상품이 없어요.</p>}</section><footer><a className="logo" href="/">somimall<i/></a><p>취향을 발견하는 작은 즐거움.</p><a href="/admin">운영자 관리</a><small>© 2026 SOMIMALL</small></footer></main><nav className="bottomnav"><a href="/"><House/>홈</a><a href="/category"><Grid2X2/>카테고리</a><a href="/wishlist"><Heart/>찜</a><a href="/cart"><ShoppingBag/>장바구니</a><a href="/account"><UserRound/>마이</a></nav></>;
+export default function Shop({
+  initialProducts,
+  isAdmin = false,
+}: {
+  initialProducts: Product[];
+  isAdmin?: boolean;
+}) {
+  const [query, setQuery] = useState(''),
+    [category, setCategory] = useState('전체'),
+    [wish, setWish] = useState<string[]>([]),
+    [viewed, setViewed] = useState<string[]>([]);
+  useEffect(() => {
+    try {
+      setWish(JSON.parse(localStorage.getItem('somi_wish') || '[]'));
+      setViewed(JSON.parse(localStorage.getItem('somi_viewed') || '[]'));
+    } catch {}
+  }, []);
+  useEffect(() => {
+    localStorage.setItem('somi_wish', JSON.stringify(wish));
+  }, [wish]);
+  const filtered = useMemo(
+    () =>
+      initialProducts.filter(
+        (p) =>
+          (category === '전체' || p.category === category) &&
+          `${p.name} ${p.brand}`.toLowerCase().includes(query.toLowerCase()),
+      ),
+    [initialProducts, category, query],
+  );
+  const status = (p: Product) =>
+    p.saleStatus ?? (p.sample ? '판매 준비' : '판매중');
+  const viewedProducts = viewed
+    .map((id) => initialProducts.find((p) => p.id === id))
+    .filter((p): p is Product => Boolean(p))
+    .slice(0, 4);
+  return (
+    <>
+      <div className="topline">
+        나의 취향이 모이는 곳, 소미몰 <ArrowUpRight size={14} />
+      </div>
+      <header className="header">
+        <a className="logo" href="/">
+          somi<span>mall</span>
+          <i />
+        </a>
+        <div className="search">
+          <Search size={20} />
+          <input
+            aria-label="상품 검색"
+            placeholder="지금 찾고 있는 스타일은?"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+        <div className="header-actions">
+          {isAdmin ? (
+            <a className="admin-shortcut" href="/admin">
+              관리자
+            </a>
+          ) : null}
+          <a href="/account" aria-label="로그인">
+            <UserRound />
+          </a>
+          <a href="/wishlist" aria-label="찜">
+            <Heart />
+          </a>
+          <a href="/cart" aria-label="장바구니">
+            <ShoppingBag />
+          </a>
+        </div>
+      </header>
+      <main className="shell">
+        <nav className="mainnav">
+          <b>추천</b>
+          <a href="/category">카테고리</a>
+          <a href="/category?style=에겐녀">에겐녀</a>
+          <a href="/category?style=테토녀">테토녀</a>
+          <span>FIND YOUR EVERYDAY</span>
+        </nav>
+        <section className="intro">
+          <div>
+            <span className="eyebrow">SOMI EDIT / 01</span>
+            <h1>
+              매일의 나를,
+              <br />
+              조금 더 좋아하게.
+            </h1>
+            <p>홍대 옷가게 직원이 답답해서 직접 차린 쇼핑몰.</p>
+            <p className="intro-description">
+              실제 직원의 모든 경험을 토대로 핏, 가성비 ITEM, 핫 ITEM을
+              대방출합니다.
+            </p>
+            <button
+              onClick={() =>
+                document
+                  .getElementById('catalog')
+                  ?.scrollIntoView({ behavior: 'smooth' })
+              }
+            >
+              셀렉션 만나기 <ArrowRight size={17} />
+            </button>
+          </div>
+          <div className="intro-type">
+            hello,
+            <br />
+            <em>new mood.</em>
+            <span>2026 COLLECTION</span>
+          </div>
+        </section>
+        <div className="categories">
+          {['전체', '상의', '하의', '아우터', '가방', '신발'].map((c) => (
+            <button
+              key={c}
+              onClick={() => setCategory(c)}
+              className={category === c ? 'selected' : ''}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+        <section id="catalog">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">JUST FOR YOU</span>
+              <h2>오늘, 눈여겨볼 스타일</h2>
+            </div>
+            <span>{filtered.length}개의 상품</span>
+          </div>
+          <div className="product-grid">
+            {filtered.map((p, index) => (
+              <article key={p.id}>
+                <a className="product-image" href={`/product/${p.id}`}>
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    loading={index < 2 ? 'eager' : 'lazy'}
+                    fetchPriority={index < 2 ? 'high' : 'low'}
+                    decoding="async"
+                  />
+                  <span>{status(p)}</span>
+                </a>
+                <button
+                  className={`heart ${wish.includes(p.id) ? 'active' : ''}`}
+                  onClick={() =>
+                    setWish((v) =>
+                      v.includes(p.id)
+                        ? v.filter((id) => id !== p.id)
+                        : [...v, p.id],
+                    )
+                  }
+                  aria-label={`${p.name} 찜`}
+                >
+                  <Heart
+                    size={21}
+                    fill={wish.includes(p.id) ? 'currentColor' : 'none'}
+                  />
+                </button>
+                <a className="product-info" href={`/product/${p.id}`}>
+                  <b>{p.brand}</b>
+                  <h3>{p.name}</h3>
+                  <div className="price">
+                    <strong>
+                      {Math.max(
+                        0,
+                        Math.round((1 - p.price / p.original) * 100),
+                      )}
+                      %
+                    </strong>
+                    <b>{money(p.price)}</b>
+                    <del>{money(p.original)}</del>
+                  </div>
+                  <small>
+                    {status(p)} · {p.sample ? '샘플 상품' : '소미몰 판매 상품'}
+                  </small>
+                </a>
+              </article>
+            ))}
+          </div>
+          {!filtered.length && <p className="empty">검색한 상품이 없어요.</p>}
+        </section>
+        <footer>
+          <a className="logo" href="/">
+            somimall
+            <i />
+          </a>
+          <p>취향을 발견하는 작은 즐거움.</p>
+          <a href="/admin">운영자 관리</a>
+          <small>© 2026 SOMIMALL</small>
+        </footer>
+      </main>
+      <nav className="bottomnav">
+        <a href="/">
+          <House />홈
+        </a>
+        <a href="/category">
+          <Grid2X2 />
+          카테고리
+        </a>
+        <a href="/wishlist">
+          <Heart />찜
+        </a>
+        <a href="/cart">
+          <ShoppingBag />
+          장바구니
+        </a>
+        <a href="/account">
+          <UserRound />
+          마이
+        </a>
+      </nav>
+    </>
+  );
 }
-
