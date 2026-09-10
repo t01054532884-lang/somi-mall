@@ -99,7 +99,9 @@ export default function StoreView({
                 <h3>{p.name}</h3>
                 <strong>{money(p.price)}원</strong>
                 <small className="card-review">
-                  {p.reviewCount ? `★ ${(p.averageRating ?? 0).toFixed(1)} · 리뷰 ${p.reviewCount}` : '리뷰 0'}
+                  {p.reviewCount
+                    ? `★ ${(p.averageRating ?? 0).toFixed(1)} · 리뷰 ${p.reviewCount}`
+                    : '리뷰 0'}
                 </small>
               </a>
             </article>
@@ -161,9 +163,7 @@ export default function StoreView({
                 <span>총 상품 금액</span>
                 <b>{money(total)}원</b>
               </div>
-              <button className="buy" disabled>
-                결제 기능 준비 중
-              </button>
+              <a className="buy" href="/checkout">주문서로 이동</a>
             </>
           )}
         </section>

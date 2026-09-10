@@ -23,7 +23,8 @@ export default function Shop({
     [category, setCategory] = useState('전체'),
     [wish, setWish] = useState<string[]>([]),
     [viewed, setViewed] = useState<string[]>([]),
-    [page, setPage] = useState(1);
+    [page, setPage] = useState(1),
+    [sort, setSort] = useState('추천순');
   useEffect(() => {
     try {
       setWish(JSON.parse(localStorage.getItem('somi_wish') || '[]'));
@@ -47,7 +48,13 @@ export default function Shop({
   const perPage = 8;
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const currentPage = Math.min(page, totalPages);
-  const visibleProducts = filtered.slice(
+  const sortedProducts = [...filtered].sort((a, b) => {
+    if (sort === '리뷰많은순') return (b.reviewCount ?? 0) - (a.reviewCount ?? 0);
+    if (sort === '낮은가격순') return a.price - b.price;
+    if (sort === '할인율순') return (1 - b.price / b.original) - (1 - a.price / a.original);
+    return 0;
+  });
+  const visibleProducts = sortedProducts.slice(
     (currentPage - 1) * perPage,
     currentPage * perPage,
   );
@@ -146,7 +153,12 @@ export default function Shop({
               <span className="eyebrow">JUST FOR YOU</span>
               <h2>오늘, 눈여겨볼 스타일</h2>
             </div>
-            <span>{filtered.length}개의 상품</span>
+            <label className="catalog-sort">
+              <span>{filtered.length}개의 상품</span>
+              <select value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }} aria-label="상품 정렬">
+                <option>추천순</option><option>리뷰많은순</option><option>낮은가격순</option><option>할인율순</option>
+              </select>
+            </label>
           </div>
           <div className="product-grid">
             {visibleProducts.map((p) => (
@@ -194,6 +206,7 @@ export default function Shop({
                       : '리뷰 0'}{' '}
                     · {status(p)}
                   </small>
+                  <span className="benefit-tags">{p.todayDispatch && <i>오늘출발</i>}<i>쿠폰</i></span>
                 </a>
               </article>
             ))}
