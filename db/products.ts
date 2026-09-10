@@ -4,6 +4,7 @@ import { getD1 } from './index';
 export type AdminProduct = Product & {
   active: boolean;
   sortOrder: number;
+  stock: number;
 };
 
 type StoreProductRow = {
@@ -21,6 +22,10 @@ type StoreProductRow = {
   sale_status: '판매중' | '품절' | '판매 준비';
   style_tag: '에겐녀' | '테토녀' | '미분류';
   sort_order: number;
+  review_count: number;
+  average_rating: number | null;
+  sales_count: number;
+  stock: number;
 };
 
 type ProductRow = StoreProductRow & {
@@ -42,11 +47,15 @@ type ProductRow = StoreProductRow & {
 export async function listStoreProducts(): Promise<Product[]> {
   const result = await getD1()
     .prepare(
-      `SELECT id, name, brand, category, price, original_price, image_url,
+      `SELECT products.id AS id, name, brand, category, price, original_price, image_url,
         colors, badge, today_dispatch, active, sale_status, style_tag, sort_order
+       , stock,
+       (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = products.id) AS review_count,
+       (SELECT AVG(rating) FROM reviews WHERE reviews.product_id = products.id) AS average_rating,
+       (SELECT COALESCE(SUM(order_items.quantity),0) FROM order_items JOIN orders ON orders.id=order_items.order_id WHERE order_items.product_id=products.id AND orders.status NOT IN ('취소','반품')) AS sales_count
        FROM products
        WHERE active = 1
-       ORDER BY sort_order DESC, created_at DESC`,
+       ORDER BY sort_order DESC, products.created_at DESC`,
     )
     .all<StoreProductRow>();
   return result.results.map(toStoreProduct);
@@ -55,13 +64,17 @@ export async function listStoreProducts(): Promise<Product[]> {
 export async function getStoreProduct(id: string): Promise<Product | null> {
   const row = await getD1()
     .prepare(
-      `SELECT id, name, brand, category, price, original_price, image_url,
+      `SELECT products.id AS id, name, brand, category, price, original_price, image_url,
         description, detail_images, material, origin, manufacturer, size_chart,
         seller_name, seller_representative, seller_address, seller_business_number,
         seller_mail_order_number, seller_email, seller_phone,
-        colors, badge, today_dispatch, active, sale_status, style_tag, sort_order
+        colors, badge, today_dispatch, active, sale_status, style_tag, sort_order,
+        stock,
+        (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = products.id) AS review_count,
+        (SELECT AVG(rating) FROM reviews WHERE reviews.product_id = products.id) AS average_rating,
+        (SELECT COALESCE(SUM(order_items.quantity),0) FROM order_items JOIN orders ON orders.id=order_items.order_id WHERE order_items.product_id=products.id AND orders.status NOT IN ('취소','반품')) AS sales_count
        FROM products
-       WHERE id = ? AND active = 1`,
+       WHERE products.id = ? AND active = 1`,
     )
     .bind(id)
     .first<ProductRow>();
@@ -71,13 +84,17 @@ export async function getStoreProduct(id: string): Promise<Product | null> {
 export async function listAdminProducts(): Promise<AdminProduct[]> {
   const result = await getD1()
     .prepare(
-      `SELECT id, name, brand, category, price, original_price, image_url,
+      `SELECT products.id AS id, name, brand, category, price, original_price, image_url,
         description, detail_images, material, origin, manufacturer, size_chart,
         seller_name, seller_representative, seller_address, seller_business_number,
         seller_mail_order_number, seller_email, seller_phone,
         colors, badge, today_dispatch, active, sale_status, style_tag, sort_order
+       , stock,
+       (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = products.id) AS review_count,
+       (SELECT AVG(rating) FROM reviews WHERE reviews.product_id = products.id) AS average_rating,
+       (SELECT COALESCE(SUM(order_items.quantity),0) FROM order_items JOIN orders ON orders.id=order_items.order_id WHERE order_items.product_id=products.id AND orders.status NOT IN ('취소','반품')) AS sales_count
        FROM products
-       ORDER BY sort_order DESC, created_at DESC`,
+       ORDER BY sort_order DESC, products.created_at DESC`,
     )
     .all<ProductRow>();
   return result.results.map((row) => ({
@@ -101,6 +118,10 @@ function toStoreProduct(row: StoreProductRow): Product {
     todayDispatch: row.today_dispatch === 1,
     saleStatus: row.sale_status,
     styleTag: row.style_tag,
+    reviewCount: Number(row.review_count ?? 0),
+    averageRating: Number(row.average_rating ?? 0),
+    salesCount: Number(row.sales_count ?? 0),
+    stock: Number(row.stock ?? 0),
     sample: false,
   };
 }
@@ -155,6 +176,10 @@ export type ProductReview = {
   memberName: string;
   rating: number;
   content: string;
+  imageUrl: string;
+  heightCm: number;
+  weightKg: number;
+  usualSize: string;
   adminReply: string;
   createdAt: string;
 };
@@ -163,7 +188,7 @@ export async function listProductReviews(
 ): Promise<ProductReview[]> {
   const result = await getD1()
     .prepare(
-      'SELECT id, member_name, rating, content, admin_reply, created_at FROM reviews WHERE product_id = ? ORDER BY created_at DESC',
+      'SELECT id, member_name, rating, content, image_url, height_cm, weight_kg, usual_size, admin_reply, created_at FROM reviews WHERE product_id = ? ORDER BY created_at DESC',
     )
     .bind(productId)
     .all<{
@@ -171,6 +196,7 @@ export async function listProductReviews(
       member_name: string;
       rating: number;
       content: string;
+      image_url: string; height_cm:number; weight_kg:number; usual_size:string;
       admin_reply: string;
       created_at: string;
     }>();
@@ -179,6 +205,7 @@ export async function listProductReviews(
     memberName: r.member_name,
     rating: r.rating,
     content: r.content,
+    imageUrl:r.image_url,heightCm:r.height_cm,weightKg:r.weight_kg,usualSize:r.usual_size,
     adminReply: r.admin_reply,
     createdAt: r.created_at,
   }));
@@ -221,7 +248,7 @@ export type AdminReview = ProductReview & {
 export async function listAdminReviews(): Promise<AdminReview[]> {
   const result = await getD1()
     .prepare(
-      'SELECT reviews.id, reviews.product_id, products.name AS product_name, reviews.member_name, reviews.rating, reviews.content, reviews.admin_reply, reviews.created_at FROM reviews JOIN products ON products.id = reviews.product_id ORDER BY reviews.created_at DESC',
+      'SELECT reviews.id, reviews.product_id, products.name AS product_name, reviews.member_name, reviews.rating, reviews.content, reviews.image_url, reviews.height_cm, reviews.weight_kg, reviews.usual_size, reviews.admin_reply, reviews.created_at FROM reviews JOIN products ON products.id = reviews.product_id ORDER BY reviews.created_at DESC',
     )
     .all<{
       id: string;
@@ -230,6 +257,7 @@ export async function listAdminReviews(): Promise<AdminReview[]> {
       member_name: string;
       rating: number;
       content: string;
+      image_url:string;height_cm:number;weight_kg:number;usual_size:string;
       admin_reply: string;
       created_at: string;
     }>();
@@ -240,6 +268,7 @@ export async function listAdminReviews(): Promise<AdminReview[]> {
     memberName: r.member_name,
     rating: r.rating,
     content: r.content,
+    imageUrl:r.image_url,heightCm:r.height_cm,weightKg:r.weight_kg,usualSize:r.usual_size,
     adminReply: r.admin_reply,
     createdAt: r.created_at,
   }));

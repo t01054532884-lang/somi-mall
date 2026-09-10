@@ -1,6 +1,7 @@
 /* oxlint-disable next/no-html-link-for-pages, next/no-img-element */
 import { getMemberSession } from '../google-auth';
 import { getAdminUser } from '../admin-auth';
+import {getMemberCoupon,listMemberOrders} from '@/db/orders';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +12,7 @@ type AccountPageProps = {
 export default async function Account({ searchParams }: AccountPageProps) {
   const [user, admin] = await Promise.all([getMemberSession(), getAdminUser()]);
   const error = (await searchParams)?.error;
+  let orders=[] as Awaited<ReturnType<typeof listMemberOrders>>,coupon=null as Awaited<ReturnType<typeof getMemberCoupon>>;try{if(user)[orders,coupon]=await Promise.all([listMemberOrders(user.memberId),getMemberCoupon(user.memberId)])}catch{}
   return (
     <main className="panel">
       <a className="logo" href="/">
@@ -30,7 +32,8 @@ export default async function Account({ searchParams }: AccountPageProps) {
               <p>{user.email}</p>
             </div>
           </section>
-          <div className="row"><div><b>주문 내역</b><p>아직 주문 내역이 없습니다.</p></div></div>
+          <div className="row"><div><b>내 쿠폰</b><p>{coupon?(coupon.used?'첫 구매 쿠폰 · 사용 완료':'첫 구매 10% 할인 쿠폰 · 사용 가능'):'발급받은 쿠폰이 없습니다.'}</p></div></div>
+          <section className="account-orders"><h2>주문 내역</h2>{orders.map(order=><article className="row" key={order.id}><div><b>{order.orderNumber}</b><p>{order.items.map(x=>`${x.productName} × ${x.quantity}`).join(', ')}</p><small>{order.status} · {order.total.toLocaleString('ko-KR')}원{order.trackingNumber?` · 로젠택배 ${order.trackingNumber}`:''}</small></div></article>)}{!orders.length?<p>아직 주문 내역이 없습니다.</p>:null}</section>
           <div className="row"><div><b>찜한 상품</b><p>마음에 드는 상품을 모아보세요.</p></div></div>
           <form action="/api/auth/logout" method="post">
             <button className="solid" type="submit">로그아웃</button>

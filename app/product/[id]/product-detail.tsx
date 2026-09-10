@@ -27,9 +27,10 @@ export default function ProductDetail({
 }) {
   const [color, setColor] = useState(product.colors[0] || '기본'),
     [tab, setTab] = useState<Tab>('상품정보'),
-    [saved, setSaved] = useState(false);
+    [saved, setSaved] = useState(false),
+    [coupon, setCoupon] = useState(false);
   const status =
-      product.saleStatus ?? (product.sample ? '판매 준비' : '판매중'),
+      (product.stock??1)<=0?'품절':product.saleStatus ?? (product.sample ? '판매 준비' : '판매중'),
     discount = Math.max(
       0,
       Math.round((1 - product.price / product.original) * 100),
@@ -59,14 +60,14 @@ export default function ProductDetail({
     }, 0);
     return () => window.clearTimeout(timer);
   }, [product.id]);
-  function add() {
+  function add(destination = '/cart') {
     if (status !== '판매중') return;
     const old = JSON.parse(localStorage.getItem('somi_cart') || '[]');
     localStorage.setItem(
       'somi_cart',
       JSON.stringify([...old, { product, color, qty: 1 }]),
     );
-    location.href = '/cart';
+    location.href = destination;
   }
   function choose(next: Tab) {
     setTab(next);
@@ -115,6 +116,13 @@ export default function ProductDetail({
           <b>{money(product.price)}원</b>
           <del>{money(product.original)}원</del>
         </div>
+        <button
+          className="coupon-card"
+          onClick={async () => {if(!member){location.href=`/api/auth/google/start?returnTo=${encodeURIComponent(`/product/${product.id}`)}`;return;}const response=await fetch('/api/coupons/claim',{method:'POST'});if(response.ok)setCoupon(true);}}
+        >
+          <span><b>첫 구매 10% 할인 쿠폰</b><small>최대 10,000원 할인</small></span>
+          <strong>{coupon ? '받음' : '쿠폰 받기'}</strong>
+        </button>
         <p>
           {product.description ||
             '매일 입기 좋은 소미몰 셀렉트 아이템이에요. 편안한 핏과 활용도 높은 디자인으로 준비했습니다.'}
@@ -183,8 +191,11 @@ export default function ProductDetail({
         >
           <Heart fill={saved ? 'currentColor' : 'none'} />
         </button>
-        <button disabled={status !== '판매중'} onClick={add}>
-          {status === '판매중' ? '장바구니 담기' : status}
+        <button disabled={status !== '판매중'} onClick={() => add('/cart')}>
+          {status === '판매중' ? '장바구니' : status}
+        </button>
+        <button className="buy-now" disabled={status !== '판매중'} onClick={() => add('/checkout')}>
+          바로구매
         </button>
       </footer>
     </main>
@@ -290,6 +301,8 @@ function Reviews({
   average: number;
   member: { name: string } | null;
 }) {
+  const [sizeFilter,setSizeFilter]=useState('전체');
+  const filteredReviews=reviews.filter(review=>sizeFilter==='전체'||review.usualSize===sizeFilter);
   return (
     <>
       <div className="review-score">
@@ -336,6 +349,8 @@ function Reviews({
               placeholder="핏, 색상, 착용감 등 도움이 될 내용을 10자 이상 적어 주세요."
             />
           </label>
+          <div className="review-profile"><label>키(cm)<input name="heightCm" type="number" min="120" max="230" placeholder="예: 163"/></label><label>몸무게(kg)<input name="weightKg" type="number" min="25" max="250" placeholder="예: 52"/></label><label>평소 사이즈<select name="usualSize" defaultValue=""><option value="">선택 안 함</option>{['XS','S','M','L','XL','FREE'].map(x=><option key={x}>{x}</option>)}</select></label></div>
+          <ReviewImageUploader />
           <button className="solid" type="submit">
             리뷰 등록
           </button>
@@ -355,8 +370,9 @@ function Reviews({
           </a>
         </div>
       )}
+      <div className="review-filter"><b>체형 리뷰 찾기</b><select value={sizeFilter} onChange={e=>setSizeFilter(e.target.value)}><option>전체</option>{['XS','S','M','L','XL','FREE'].map(x=><option key={x}>{x}</option>)}</select></div>
       <div className="review-list">
-        {reviews.map((r) => (
+        {filteredReviews.map((r) => (
           <article key={r.id}>
             <header>
               <b>{mask(r.memberName)}</b>
@@ -367,6 +383,8 @@ function Reviews({
               <time>{date(r.createdAt)}</time>
             </header>
             <p>{r.content}</p>
+            {(r.heightCm||r.weightKg||r.usualSize)?<small className="review-body-info">{[r.heightCm?`${r.heightCm}cm`:'',r.weightKg?`${r.weightKg}kg`:'',r.usualSize?`평소 ${r.usualSize}`:''].filter(Boolean).join(' · ')}</small>:null}
+            {r.imageUrl?<img className="review-photo" src={r.imageUrl} alt="구매자 착용 리뷰" loading="lazy" fetchPriority="low" decoding="async"/>:null}
             {r.adminReply ? (
               <div className="admin-public-reply">
                 <b>소미몰 답변</b>
@@ -382,6 +400,7 @@ function Reviews({
     </>
   );
 }
+function ReviewImageUploader(){const [url,setUrl]=useState(''),[message,setMessage]=useState('');return <label>리뷰 사진<input type="hidden" name="imageUrl" value={url}/><input className="file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={async event=>{const file=event.target.files?.[0];if(!file)return;setMessage('업로드 중…');const data=new FormData();data.set('file',file);const response=await fetch('/api/review-upload',{method:'POST',body:data}),result=await response.json() as {url?:string;error?:string};if(result.url){setUrl(result.url);setMessage('사진이 첨부됐어요.')}else setMessage(result.error||'업로드 실패');}}/><small>{message||'8MB 이하 사진 1장'}</small>{url?<img className="review-upload-preview" src={url} alt="리뷰 사진 미리보기"/>:null}</label>}
 function SizeGuide({ product }: { product: Product }) {
   return (
     <>
