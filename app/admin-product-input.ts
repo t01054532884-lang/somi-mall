@@ -14,6 +14,7 @@ export type ProductInput = {
   saleStatus: '판매중' | '품절' | '판매 준비';
   styleTag: '에겐녀' | '테토녀' | '미분류';
   sortOrder: number;
+  stock: number;
   description:string;detailImages:string[];material:string;origin:string;manufacturer:string;sizeChart:Array<Record<string,string>>;
   sellerName:string;sellerRepresentative:string;sellerAddress:string;sellerBusinessNumber:string;sellerMailOrderNumber:string;sellerEmail:string;sellerPhone:string;
 };
@@ -52,6 +53,7 @@ export function parseProductInput(formData: FormData): ProductInput {
     saleStatus: saleStatus as ProductInput['saleStatus'],
     styleTag: styleTag as ProductInput['styleTag'],
     sortOrder: integer(formData, 'sortOrder'),
+    stock: positiveInteger(formData, 'stock'),
     description:optionalText(formData,'description',10000),
     detailImages:parseJsonArray(formText(formData,'detailImages')),
     material:optionalText(formData,'material',300),origin:optionalText(formData,'origin',100),manufacturer:optionalText(formData,'manufacturer',200),

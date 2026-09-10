@@ -23,12 +23,14 @@ export default function Shop({
     [category, setCategory] = useState('전체'),
     [wish, setWish] = useState<string[]>([]),
     [viewed, setViewed] = useState<string[]>([]),
+    [cartIds,setCartIds]=useState<string[]>([]),
     [page, setPage] = useState(1),
     [sort, setSort] = useState('추천순');
   useEffect(() => {
     try {
       setWish(JSON.parse(localStorage.getItem('somi_wish') || '[]'));
       setViewed(JSON.parse(localStorage.getItem('somi_viewed') || '[]'));
+      setCartIds(JSON.parse(localStorage.getItem('somi_cart')||'[]').map((x:{product:Product})=>x.product.id));
     } catch {}
   }, []);
   useEffect(() => {
@@ -44,12 +46,13 @@ export default function Shop({
     [initialProducts, category, query],
   );
   const status = (p: Product) =>
-    p.saleStatus ?? (p.sample ? '판매 준비' : '판매중');
+    (p.stock??1)<=0?'품절':p.saleStatus ?? (p.sample ? '판매 준비' : '판매중');
   const perPage = 8;
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const currentPage = Math.min(page, totalPages);
   const sortedProducts = [...filtered].sort((a, b) => {
     if (sort === '리뷰많은순') return (b.reviewCount ?? 0) - (a.reviewCount ?? 0);
+    if(sort==='판매랭킹순')return (b.salesCount??0)-(a.salesCount??0);
     if (sort === '낮은가격순') return a.price - b.price;
     if (sort === '할인율순') return (1 - b.price / b.original) - (1 - a.price / a.original);
     return 0;
@@ -62,6 +65,8 @@ export default function Shop({
     .map((id) => initialProducts.find((p) => p.id === id))
     .filter((p): p is Product => Boolean(p))
     .slice(0, 4);
+  const interestProducts=[...new Set([...viewed,...wish,...cartIds])].map(id=>initialProducts.find(p=>p.id===id)).filter((p):p is Product=>Boolean(p));
+  const personalized=initialProducts.filter(p=>!interestProducts.some(x=>x.id===p.id)).map(p=>({p,score:interestProducts.reduce((n,x)=>n+(x.category===p.category?3:0)+(x.styleTag&&x.styleTag===p.styleTag?2:0),0)})).sort((a,b)=>b.score-a.score||(b.p.salesCount??0)-(a.p.salesCount??0)).slice(0,4).map(x=>x.p);
   return (
     <>
       <div className="topline">
@@ -156,7 +161,7 @@ export default function Shop({
             <label className="catalog-sort">
               <span>{filtered.length}개의 상품</span>
               <select value={sort} onChange={(event) => { setSort(event.target.value); setPage(1); }} aria-label="상품 정렬">
-                <option>추천순</option><option>리뷰많은순</option><option>낮은가격순</option><option>할인율순</option>
+                <option>추천순</option><option>판매랭킹순</option><option>리뷰많은순</option><option>낮은가격순</option><option>할인율순</option>
               </select>
             </label>
           </div>
@@ -206,6 +211,7 @@ export default function Shop({
                       : '리뷰 0'}{' '}
                     · {status(p)}
                   </small>
+                  {(p.salesCount??0)>0?<small>누적 판매 {p.salesCount}개</small>:null}
                   <span className="benefit-tags">{p.todayDispatch && <i>오늘출발</i>}<i>쿠폰</i></span>
                 </a>
               </article>
@@ -220,6 +226,7 @@ export default function Shop({
             </nav>
           )}
         </section>
+        {interestProducts.length>0&&personalized.length>0?<section className="personalized"><div className="section-head"><div><span className="eyebrow">FOR YOUR MOOD</span><h2>최근 취향과 어울리는 상품</h2></div></div><div className="recommend-grid">{personalized.map(p=><a href={`/product/${p.id}`} key={p.id}><img src={p.image} alt=""/><b>{p.name}</b><span>{money(p.price)}원</span></a>)}</div></section>:null}
         <footer>
           <a className="logo" href="/">
             somimall

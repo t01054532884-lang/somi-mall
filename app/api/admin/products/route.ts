@@ -15,8 +15,8 @@ export async function POST(request: Request) {
           description, detail_images, material, origin, manufacturer, size_chart,
           seller_name, seller_representative, seller_address, seller_business_number,
           seller_mail_order_number, seller_email, seller_phone, colors,
-          badge, today_dispatch, active, sale_status, style_tag, sort_order, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          badge, today_dispatch, active, sale_status, style_tag, sort_order, stock, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
       )
       .bind(
         crypto.randomUUID(), product.name, product.brand, product.category,
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
         product.sellerAddress, product.sellerBusinessNumber, product.sellerMailOrderNumber,
         product.sellerEmail, product.sellerPhone,
         JSON.stringify(product.colors), product.badge,
-        product.todayDispatch ? 1 : 0, product.active ? 1 : 0, product.saleStatus, product.styleTag, product.sortOrder,
+        product.todayDispatch ? 1 : 0, product.active ? 1 : 0, product.saleStatus, product.styleTag, product.sortOrder, product.stock,
       )
       .run();
     return adminRedirect(request, 'created');

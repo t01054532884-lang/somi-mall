@@ -59,6 +59,7 @@ export const products = sqliteTable(
     saleStatus: text('sale_status').notNull().default('판매중'),
     styleTag: text('style_tag').notNull().default('미분류'),
     sortOrder: integer('sort_order').notNull().default(0),
+    stock: integer('stock').notNull().default(10),
     createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
   },
@@ -68,9 +69,21 @@ export const products = sqliteTable(
 );
 
 export const reviews = sqliteTable('reviews',{
-  id:text('id').primaryKey(),productId:text('product_id').notNull(),memberId:text('member_id').notNull(),memberName:text('member_name').notNull(),rating:integer('rating').notNull(),content:text('content').notNull(),adminReply:text('admin_reply').notNull().default(''),createdAt:text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  id:text('id').primaryKey(),productId:text('product_id').notNull(),memberId:text('member_id').notNull(),memberName:text('member_name').notNull(),rating:integer('rating').notNull(),content:text('content').notNull(),imageUrl:text('image_url').notNull().default(''),heightCm:integer('height_cm').notNull().default(0),weightKg:integer('weight_kg').notNull().default(0),usualSize:text('usual_size').notNull().default(''),adminReply:text('admin_reply').notNull().default(''),createdAt:text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
 },(table)=>[uniqueIndex('idx_reviews_product_member').on(table.productId,table.memberId)]);
 
 export const inquiries = sqliteTable('product_inquiries',{
   id:text('id').primaryKey(),productId:text('product_id').notNull(),memberId:text('member_id').notNull(),memberName:text('member_name').notNull(),content:text('content').notNull(),answer:text('answer').notNull().default(''),createdAt:text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const coupons = sqliteTable('coupons',{
+  id:text('id').primaryKey(),memberId:text('member_id').notNull(),code:text('code').notNull(),name:text('name').notNull(),discountRate:integer('discount_rate').notNull().default(10),maxDiscount:integer('max_discount').notNull().default(10000),used:integer('used',{mode:'boolean'}).notNull().default(false),issuedAt:text('issued_at').notNull().default(sql`CURRENT_TIMESTAMP`),usedAt:text('used_at'),
+},(table)=>[uniqueIndex('idx_coupons_member_code').on(table.memberId,table.code)]);
+
+export const orders = sqliteTable('orders',{
+  id:text('id').primaryKey(),orderNumber:text('order_number').notNull(),memberId:text('member_id').notNull(),memberName:text('member_name').notNull(),email:text('email').notNull(),recipient:text('recipient').notNull(),phone:text('phone').notNull(),address:text('address').notNull(),memo:text('memo').notNull().default(''),status:text('status').notNull().default('신규 주문'),paymentStatus:text('payment_status').notNull().default('결제수단 미연결'),subtotal:integer('subtotal').notNull(),discount:integer('discount').notNull().default(0),shippingFee:integer('shipping_fee').notNull().default(0),total:integer('total').notNull(),couponId:text('coupon_id'),carrier:text('carrier').notNull().default('로젠택배'),trackingNumber:text('tracking_number').notNull().default(''),createdAt:text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),updatedAt:text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+},(table)=>[uniqueIndex('idx_orders_order_number').on(table.orderNumber)]);
+
+export const orderItems = sqliteTable('order_items',{
+  id:text('id').primaryKey(),orderId:text('order_id').notNull(),productId:text('product_id').notNull(),productName:text('product_name').notNull(),optionName:text('option_name').notNull().default('기본'),quantity:integer('quantity').notNull(),unitPrice:integer('unit_price').notNull(),lineTotal:integer('line_total').notNull(),
 });

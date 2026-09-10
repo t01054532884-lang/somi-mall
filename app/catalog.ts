@@ -33,6 +33,8 @@ export type Product = {
   styleTag?: '에겐녀' | '테토녀' | '미분류';
   reviewCount?: number;
   averageRating?: number;
+  salesCount?: number;
+  stock?: number;
   description?: string;
   detailImages?: string[];
   material?: string;
