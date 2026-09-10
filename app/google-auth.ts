@@ -5,6 +5,8 @@ import { cookies } from 'next/headers';
 const SESSION_COOKIE = 'somimall_session';
 export const OAUTH_STATE_COOKIE = 'somimall_google_state';
 export const OAUTH_RETURN_COOKIE = 'somimall_google_return';
+export const KAKAO_STATE_COOKIE = 'somimall_kakao_state';
+export const KAKAO_RETURN_COOKIE = 'somimall_kakao_return';
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const GOOGLE_JWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/oauth2/v3/certs'),
@@ -13,6 +15,8 @@ const GOOGLE_JWKS = createRemoteJWKSet(
 type RuntimeSecrets = {
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
+  KAKAO_REST_API_KEY?: string;
+  KAKAO_CLIENT_SECRET?: string;
   AUTH_SECRET?: string;
 };
 
@@ -33,6 +37,24 @@ export function getGoogleAuthConfig() {
     throw new Error('Google login environment variables are not configured.');
   }
   return { clientId, clientSecret, authSecret };
+}
+
+export function getKakaoAuthConfig() {
+  const runtime = env as unknown as RuntimeSecrets;
+  const clientId = runtime.KAKAO_REST_API_KEY ?? process.env.KAKAO_REST_API_KEY;
+  const clientSecret =
+    runtime.KAKAO_CLIENT_SECRET ?? process.env.KAKAO_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    throw new Error('Kakao login environment variables are not configured.');
+  }
+  return { clientId, clientSecret };
+}
+
+function getAuthSecret() {
+  const runtime = env as unknown as RuntimeSecrets;
+  const authSecret = runtime.AUTH_SECRET ?? process.env.AUTH_SECRET;
+  if (!authSecret) throw new Error('AUTH_SECRET is not configured.');
+  return authSecret;
 }
 
 export async function verifyGoogleIdToken(idToken: string) {
@@ -60,7 +82,7 @@ export async function verifyGoogleIdToken(idToken: string) {
 }
 
 export async function createSessionToken(session: MemberSession) {
-  const { authSecret } = getGoogleAuthConfig();
+  const authSecret = getAuthSecret();
   return new SignJWT({
     email: session.email,
     name: session.displayName,
@@ -77,7 +99,7 @@ export async function getMemberSession(): Promise<MemberSession | null> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return null;
   try {
-    const { authSecret } = getGoogleAuthConfig();
+    const authSecret = getAuthSecret();
     const { payload } = await jwtVerify(
       token,
       new TextEncoder().encode(authSecret),
@@ -117,9 +139,45 @@ export function clearStateCookie(secure: boolean) {
   return serializeCookie(OAUTH_STATE_COOKIE, '', 0, secure);
 }
 
-export function returnCookie(returnTo:string,secure:boolean){return serializeCookie(OAUTH_RETURN_COOKIE,safeReturnTo(returnTo),600,secure)}
-export function clearReturnCookie(secure:boolean){return serializeCookie(OAUTH_RETURN_COOKIE,'',0,secure)}
-export function safeReturnTo(value:string){if(!value.startsWith('/')||value.startsWith('//'))return '/account';try{const url=new URL(value,'https://somimall.local');return url.origin==='https://somimall.local'?`${url.pathname}${url.search}${url.hash}`:'/account'}catch{return '/account'}}
+export function returnCookie(returnTo: string, secure: boolean) {
+  return serializeCookie(
+    OAUTH_RETURN_COOKIE,
+    safeReturnTo(returnTo),
+    600,
+    secure,
+  );
+}
+export function clearReturnCookie(secure: boolean) {
+  return serializeCookie(OAUTH_RETURN_COOKIE, '', 0, secure);
+}
+export function kakaoStateCookie(state: string, secure: boolean) {
+  return serializeCookie(KAKAO_STATE_COOKIE, state, 600, secure);
+}
+export function clearKakaoStateCookie(secure: boolean) {
+  return serializeCookie(KAKAO_STATE_COOKIE, '', 0, secure);
+}
+export function kakaoReturnCookie(returnTo: string, secure: boolean) {
+  return serializeCookie(
+    KAKAO_RETURN_COOKIE,
+    safeReturnTo(returnTo),
+    600,
+    secure,
+  );
+}
+export function clearKakaoReturnCookie(secure: boolean) {
+  return serializeCookie(KAKAO_RETURN_COOKIE, '', 0, secure);
+}
+export function safeReturnTo(value: string) {
+  if (!value.startsWith('/') || value.startsWith('//')) return '/account';
+  try {
+    const url = new URL(value, 'https://somimall.local');
+    return url.origin === 'https://somimall.local'
+      ? `${url.pathname}${url.search}${url.hash}`
+      : '/account';
+  } catch {
+    return '/account';
+  }
+}
 
 export function readCookie(request: Request, name: string) {
   for (const pair of (request.headers.get('cookie') ?? '').split(';')) {

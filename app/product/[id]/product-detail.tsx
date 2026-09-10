@@ -30,7 +30,9 @@ export default function ProductDetail({
     [saved, setSaved] = useState(false),
     [coupon, setCoupon] = useState(false);
   const status =
-      (product.stock??1)<=0?'품절':product.saleStatus ?? (product.sample ? '판매 준비' : '판매중'),
+      (product.stock ?? 1) <= 0
+        ? '품절'
+        : (product.saleStatus ?? (product.sample ? '판매 준비' : '판매중')),
     discount = Math.max(
       0,
       Math.round((1 - product.price / product.original) * 100),
@@ -62,6 +64,10 @@ export default function ProductDetail({
   }, [product.id]);
   function add(destination = '/cart') {
     if (status !== '판매중') return;
+    if (!member) {
+      requireMember(`/product/${product.id}`);
+      return;
+    }
     const old = JSON.parse(localStorage.getItem('somi_cart') || '[]');
     localStorage.setItem(
       'somi_cart',
@@ -118,9 +124,21 @@ export default function ProductDetail({
         </div>
         <button
           className="coupon-card"
-          onClick={async () => {if(!member){location.href=`/api/auth/google/start?returnTo=${encodeURIComponent(`/product/${product.id}`)}`;return;}const response=await fetch('/api/coupons/claim',{method:'POST'});if(response.ok)setCoupon(true);}}
+          onClick={async () => {
+            if (!member) {
+              requireMember(`/product/${product.id}`);
+              return;
+            }
+            const response = await fetch('/api/coupons/claim', {
+              method: 'POST',
+            });
+            if (response.ok) setCoupon(true);
+          }}
         >
-          <span><b>첫 구매 10% 할인 쿠폰</b><small>최대 10,000원 할인</small></span>
+          <span>
+            <b>첫 구매 10% 할인 쿠폰</b>
+            <small>최대 10,000원 할인</small>
+          </span>
           <strong>{coupon ? '받음' : '쿠폰 받기'}</strong>
         </button>
         <p>
@@ -194,7 +212,11 @@ export default function ProductDetail({
         <button disabled={status !== '판매중'} onClick={() => add('/cart')}>
           {status === '판매중' ? '장바구니' : status}
         </button>
-        <button className="buy-now" disabled={status !== '판매중'} onClick={() => add('/checkout')}>
+        <button
+          className="buy-now"
+          disabled={status !== '판매중'}
+          onClick={() => add('/checkout')}
+        >
           바로구매
         </button>
       </footer>
@@ -301,8 +323,10 @@ function Reviews({
   average: number;
   member: { name: string } | null;
 }) {
-  const [sizeFilter,setSizeFilter]=useState('전체');
-  const filteredReviews=reviews.filter(review=>sizeFilter==='전체'||review.usualSize===sizeFilter);
+  const [sizeFilter, setSizeFilter] = useState('전체');
+  const filteredReviews = reviews.filter(
+    (review) => sizeFilter === '전체' || review.usualSize === sizeFilter,
+  );
   return (
     <>
       <div className="review-score">
@@ -349,7 +373,37 @@ function Reviews({
               placeholder="핏, 색상, 착용감 등 도움이 될 내용을 10자 이상 적어 주세요."
             />
           </label>
-          <div className="review-profile"><label>키(cm)<input name="heightCm" type="number" min="120" max="230" placeholder="예: 163"/></label><label>몸무게(kg)<input name="weightKg" type="number" min="25" max="250" placeholder="예: 52"/></label><label>평소 사이즈<select name="usualSize" defaultValue=""><option value="">선택 안 함</option>{['XS','S','M','L','XL','FREE'].map(x=><option key={x}>{x}</option>)}</select></label></div>
+          <div className="review-profile">
+            <label>
+              키(cm)
+              <input
+                name="heightCm"
+                type="number"
+                min="120"
+                max="230"
+                placeholder="예: 163"
+              />
+            </label>
+            <label>
+              몸무게(kg)
+              <input
+                name="weightKg"
+                type="number"
+                min="25"
+                max="250"
+                placeholder="예: 52"
+              />
+            </label>
+            <label>
+              평소 사이즈
+              <select name="usualSize" defaultValue="">
+                <option value="">선택 안 함</option>
+                {['XS', 'S', 'M', 'L', 'XL', 'FREE'].map((x) => (
+                  <option key={x}>{x}</option>
+                ))}
+              </select>
+            </label>
+          </div>
           <ReviewImageUploader />
           <button className="solid" type="submit">
             리뷰 등록
@@ -360,17 +414,31 @@ function Reviews({
           <MessageCircle />
           <div>
             <b>로그인하고 리뷰를 남겨보세요.</b>
-            <p>Google 회원만 리뷰를 작성할 수 있습니다.</p>
+            <p>회원 기능입니다. 로그인 후 리뷰를 작성할 수 있습니다.</p>
           </div>
           <a
             className="solid"
-            href={`/api/auth/google/start?returnTo=${encodeURIComponent(`/product/${product.id}#reviews`)}`}
+            href={`/login?notice=member&returnTo=${encodeURIComponent(`/product/${product.id}#reviews`)}`}
+            onClick={() =>
+              window.alert('회원 기능입니다. 로그인 후 이용해 주세요.')
+            }
           >
             로그인
           </a>
         </div>
       )}
-      <div className="review-filter"><b>체형 리뷰 찾기</b><select value={sizeFilter} onChange={e=>setSizeFilter(e.target.value)}><option>전체</option>{['XS','S','M','L','XL','FREE'].map(x=><option key={x}>{x}</option>)}</select></div>
+      <div className="review-filter">
+        <b>체형 리뷰 찾기</b>
+        <select
+          value={sizeFilter}
+          onChange={(e) => setSizeFilter(e.target.value)}
+        >
+          <option>전체</option>
+          {['XS', 'S', 'M', 'L', 'XL', 'FREE'].map((x) => (
+            <option key={x}>{x}</option>
+          ))}
+        </select>
+      </div>
       <div className="review-list">
         {filteredReviews.map((r) => (
           <article key={r.id}>
@@ -383,8 +451,27 @@ function Reviews({
               <time>{date(r.createdAt)}</time>
             </header>
             <p>{r.content}</p>
-            {(r.heightCm||r.weightKg||r.usualSize)?<small className="review-body-info">{[r.heightCm?`${r.heightCm}cm`:'',r.weightKg?`${r.weightKg}kg`:'',r.usualSize?`평소 ${r.usualSize}`:''].filter(Boolean).join(' · ')}</small>:null}
-            {r.imageUrl?<img className="review-photo" src={r.imageUrl} alt="구매자 착용 리뷰" loading="lazy" fetchPriority="low" decoding="async"/>:null}
+            {r.heightCm || r.weightKg || r.usualSize ? (
+              <small className="review-body-info">
+                {[
+                  r.heightCm ? `${r.heightCm}cm` : '',
+                  r.weightKg ? `${r.weightKg}kg` : '',
+                  r.usualSize ? `평소 ${r.usualSize}` : '',
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </small>
+            ) : null}
+            {r.imageUrl ? (
+              <img
+                className="review-photo"
+                src={r.imageUrl}
+                alt="구매자 착용 리뷰"
+                loading="lazy"
+                fetchPriority="low"
+                decoding="async"
+              />
+            ) : null}
             {r.adminReply ? (
               <div className="admin-public-reply">
                 <b>소미몰 답변</b>
@@ -400,7 +487,48 @@ function Reviews({
     </>
   );
 }
-function ReviewImageUploader(){const [url,setUrl]=useState(''),[message,setMessage]=useState('');return <label>리뷰 사진<input type="hidden" name="imageUrl" value={url}/><input className="file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={async event=>{const file=event.target.files?.[0];if(!file)return;setMessage('업로드 중…');const data=new FormData();data.set('file',file);const response=await fetch('/api/review-upload',{method:'POST',body:data}),result=await response.json() as {url?:string;error?:string};if(result.url){setUrl(result.url);setMessage('사진이 첨부됐어요.')}else setMessage(result.error||'업로드 실패');}}/><small>{message||'8MB 이하 사진 1장'}</small>{url?<img className="review-upload-preview" src={url} alt="리뷰 사진 미리보기"/>:null}</label>}
+function ReviewImageUploader() {
+  const [url, setUrl] = useState(''),
+    [message, setMessage] = useState('');
+  return (
+    <label>
+      리뷰 사진
+      <input type="hidden" name="imageUrl" value={url} />
+      <input
+        className="file-input"
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        onChange={async (event) => {
+          const file = event.target.files?.[0];
+          if (!file) return;
+          setMessage('업로드 중…');
+          const data = new FormData();
+          data.set('file', file);
+          const response = await fetch('/api/review-upload', {
+              method: 'POST',
+              body: data,
+            }),
+            result = (await response.json()) as {
+              url?: string;
+              error?: string;
+            };
+          if (result.url) {
+            setUrl(result.url);
+            setMessage('사진이 첨부됐어요.');
+          } else setMessage(result.error || '업로드 실패');
+        }}
+      />
+      <small>{message || '8MB 이하 사진 1장'}</small>
+      {url ? (
+        <img
+          className="review-upload-preview"
+          src={url}
+          alt="리뷰 사진 미리보기"
+        />
+      ) : null}
+    </label>
+  );
+}
 function SizeGuide({ product }: { product: Product }) {
   return (
     <>
@@ -483,7 +611,10 @@ function Inquiries({
         <p className="login-line">
           문의 작성은 로그인이 필요합니다.{' '}
           <a
-            href={`/api/auth/google/start?returnTo=${encodeURIComponent(`/product/${product.id}#inquiries`)}`}
+            href={`/login?notice=member&returnTo=${encodeURIComponent(`/product/${product.id}#inquiries`)}`}
+            onClick={() =>
+              window.alert('회원 기능입니다. 로그인 후 이용해 주세요.')
+            }
           >
             로그인하기
           </a>
@@ -525,4 +656,9 @@ function date(value: string) {
     month: '2-digit',
     day: '2-digit',
   }).format(new Date(value));
+}
+
+function requireMember(returnTo: string) {
+  window.alert('회원 기능입니다. 로그인 후 이용해 주세요.');
+  window.location.href = `/login?notice=member&returnTo=${encodeURIComponent(returnTo)}`;
 }
