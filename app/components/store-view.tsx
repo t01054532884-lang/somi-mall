@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Heart, Minus, Plus, Trash2 } from 'lucide-react';
-import { money, type Product } from '@/app/catalog';
+import { money, PRODUCT_COLLECTIONS, type Product } from '@/app/catalog';
 export default function StoreView({
   mode,
   products,
@@ -40,7 +40,9 @@ export default function StoreView({
       : products.filter((p) =>
           curated
             ? p.styleTag === curated
-            : cat === '전체' || p.category === cat,
+            : cat === '전체' ||
+              p.category === cat ||
+              p.collections?.includes(cat),
         );
   const title =
     style ||
@@ -61,10 +63,7 @@ export default function StoreView({
       </header>
       {mode === 'category' && (
         <div className="categories">
-          {(curated
-            ? [style]
-            : ['전체', '상의', '하의', '아우터', '가방', '신발']
-          ).map((x) => (
+          {(curated ? [style] : ['전체', ...PRODUCT_COLLECTIONS]).map((x) => (
             <button
               className={cat === x || x === style ? 'selected' : ''}
               onClick={() => setCat(x)}
@@ -175,7 +174,9 @@ export default function StoreView({
                 <span>총 상품 금액</span>
                 <b>{money(total)}원</b>
               </div>
-              <a className="buy" href="/checkout">주문서로 이동</a>
+              <a className="buy" href="/checkout">
+                주문서로 이동
+              </a>
             </>
           )}
         </section>

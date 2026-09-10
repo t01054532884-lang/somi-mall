@@ -22,6 +22,7 @@ export type Product = {
   name: string;
   brand: string;
   category: string;
+  collections?: string[];
   price: number;
   original: number;
   image: string;
@@ -43,6 +44,18 @@ export type Product = {
   sizeChart?: SizeRow[];
   seller?: SellerInfo;
 };
+export const PRODUCT_COLLECTIONS = [
+  'BEST',
+  'NEW',
+  '아우터',
+  '원피스',
+  '니트',
+  '블라우스/셔츠',
+  '스커트',
+  '팬츠',
+  '언더웨어',
+  '악세잡화',
+] as const;
 const img = (id: string) =>
   `https://images.unsplash.com/${id}?auto=format&fit=crop&w=800&q=85`;
 export const products: Product[] = [
@@ -51,6 +64,7 @@ export const products: Product[] = [
     name: '소프트 니트 가디건',
     brand: 'SOMI SELECT',
     category: '상의',
+    collections: ['BEST', 'NEW', '니트'],
     price: 32900,
     original: 47000,
     image: img('photo-1683315565563-f72590773805'),
@@ -81,6 +95,7 @@ export const products: Product[] = [
     name: '데일리 오버핏 후드',
     brand: 'SOMI BASIC',
     category: '상의',
+    collections: ['NEW', '니트'],
     price: 29900,
     original: 42000,
     image: img('photo-1576727560793-1239ad9b8fcd'),
@@ -93,6 +108,7 @@ export const products: Product[] = [
     name: '내추럴 데님 팬츠',
     brand: 'SOMI DENIM',
     category: '하의',
+    collections: ['BEST', '팬츠'],
     price: 39900,
     original: 52000,
     image: img('photo-1631112230741-446762ee05ac'),
@@ -106,6 +122,7 @@ export const products: Product[] = [
     name: '시티 데일리 재킷',
     brand: 'SOMI SELECT',
     category: '아우터',
+    collections: ['아우터'],
     price: 69000,
     original: 89000,
     image: 'https://unsplash.com/photos/Fg15LdqpWrs/download?force=true',
@@ -118,6 +135,7 @@ export const products: Product[] = [
     name: '에브리데이 숄더백',
     brand: 'SOMI OBJECT',
     category: '가방',
+    collections: ['악세잡화'],
     price: 35900,
     original: 45000,
     image: img('photo-1598532163257-ae3c6b2524b6'),
@@ -131,6 +149,7 @@ export const products: Product[] = [
     name: '클래식 스니커즈',
     brand: 'SOMI BASIC',
     category: '신발',
+    collections: ['악세잡화'],
     price: 49000,
     original: 59000,
     image: img('photo-1491553895911-0055eca6402d'),

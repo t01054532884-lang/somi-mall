@@ -105,11 +105,16 @@ export async function listAdminProducts(): Promise<AdminProduct[]> {
 }
 
 function toStoreProduct(row: StoreProductRow): Product {
+  const collections = parseCollections(row.category);
   return {
     id: row.id,
     name: row.name,
     brand: row.brand,
-    category: row.category,
+    category:
+      collections.find((value) => !['BEST', 'NEW'].includes(value)) ??
+      collections[0] ??
+      row.category,
+    collections,
     price: row.price,
     original: row.original_price,
     image: row.image_url,
@@ -124,6 +129,11 @@ function toStoreProduct(row: StoreProductRow): Product {
     stock: Number(row.stock ?? 0),
     sample: false,
   };
+}
+
+function parseCollections(value: string): string[] {
+  const parsed = parseArray(value);
+  return parsed.length ? parsed : value ? [value] : [];
 }
 
 function toProduct(row: ProductRow): Product {
@@ -196,7 +206,10 @@ export async function listProductReviews(
       member_name: string;
       rating: number;
       content: string;
-      image_url: string; height_cm:number; weight_kg:number; usual_size:string;
+      image_url: string;
+      height_cm: number;
+      weight_kg: number;
+      usual_size: string;
       admin_reply: string;
       created_at: string;
     }>();
@@ -205,7 +218,10 @@ export async function listProductReviews(
     memberName: r.member_name,
     rating: r.rating,
     content: r.content,
-    imageUrl:r.image_url,heightCm:r.height_cm,weightKg:r.weight_kg,usualSize:r.usual_size,
+    imageUrl: r.image_url,
+    heightCm: r.height_cm,
+    weightKg: r.weight_kg,
+    usualSize: r.usual_size,
     adminReply: r.admin_reply,
     createdAt: r.created_at,
   }));
@@ -257,7 +273,10 @@ export async function listAdminReviews(): Promise<AdminReview[]> {
       member_name: string;
       rating: number;
       content: string;
-      image_url:string;height_cm:number;weight_kg:number;usual_size:string;
+      image_url: string;
+      height_cm: number;
+      weight_kg: number;
+      usual_size: string;
       admin_reply: string;
       created_at: string;
     }>();
@@ -268,7 +287,10 @@ export async function listAdminReviews(): Promise<AdminReview[]> {
     memberName: r.member_name,
     rating: r.rating,
     content: r.content,
-    imageUrl:r.image_url,heightCm:r.height_cm,weightKg:r.weight_kg,usualSize:r.usual_size,
+    imageUrl: r.image_url,
+    heightCm: r.height_cm,
+    weightKg: r.weight_kg,
+    usualSize: r.usual_size,
     adminReply: r.admin_reply,
     createdAt: r.created_at,
   }));
