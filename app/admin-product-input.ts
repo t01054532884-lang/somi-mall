@@ -8,6 +8,8 @@ export type ProductInput = {
   price: number;
   originalPrice: number;
   imageUrl: string;
+  imagePositionX: number;
+  imagePositionY: number;
   colors: string[];
   badge: string;
   todayDispatch: boolean;
@@ -70,6 +72,8 @@ export function parseProductInput(formData: FormData): ProductInput {
     price,
     originalPrice,
     imageUrl: parsedUrl.toString(),
+    imagePositionX: percentage(formData, 'imagePositionX'),
+    imagePositionY: percentage(formData, 'imagePositionY'),
     colors: formText(formData, 'colors')
       .split(',')
       .map((color) => color.trim())
@@ -159,6 +163,10 @@ function positiveInteger(formData: FormData, key: string) {
   const value = integer(formData, key);
   if (value < 0) throw new Error(`${key} 값은 0 이상이어야 합니다.`);
   return value;
+}
+
+function percentage(formData: FormData, key: string) {
+  return Math.min(100, Math.max(0, positiveInteger(formData, key)));
 }
 
 function integer(formData: FormData, key: string) {

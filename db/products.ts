@@ -15,6 +15,8 @@ type StoreProductRow = {
   price: number;
   original_price: number;
   image_url: string;
+  image_position_x: number;
+  image_position_y: number;
   colors: string;
   badge: string;
   today_dispatch: number;
@@ -47,7 +49,7 @@ type ProductRow = StoreProductRow & {
 export async function listStoreProducts(): Promise<Product[]> {
   const result = await getD1()
     .prepare(
-      `SELECT products.id AS id, name, brand, category, price, original_price, image_url,
+      `SELECT products.id AS id, name, brand, category, price, original_price, image_url, image_position_x, image_position_y,
         colors, badge, today_dispatch, active, sale_status, style_tag, sort_order
        , stock,
        (SELECT COUNT(*) FROM reviews WHERE reviews.product_id = products.id) AS review_count,
@@ -64,7 +66,7 @@ export async function listStoreProducts(): Promise<Product[]> {
 export async function getStoreProduct(id: string): Promise<Product | null> {
   const row = await getD1()
     .prepare(
-      `SELECT products.id AS id, name, brand, category, price, original_price, image_url,
+      `SELECT products.id AS id, name, brand, category, price, original_price, image_url, image_position_x, image_position_y,
         description, detail_images, material, origin, manufacturer, size_chart,
         seller_name, seller_representative, seller_address, seller_business_number,
         seller_mail_order_number, seller_email, seller_phone,
@@ -84,7 +86,7 @@ export async function getStoreProduct(id: string): Promise<Product | null> {
 export async function listAdminProducts(): Promise<AdminProduct[]> {
   const result = await getD1()
     .prepare(
-      `SELECT products.id AS id, name, brand, category, price, original_price, image_url,
+      `SELECT products.id AS id, name, brand, category, price, original_price, image_url, image_position_x, image_position_y,
         description, detail_images, material, origin, manufacturer, size_chart,
         seller_name, seller_representative, seller_address, seller_business_number,
         seller_mail_order_number, seller_email, seller_phone,
@@ -118,6 +120,8 @@ function toStoreProduct(row: StoreProductRow): Product {
     price: row.price,
     original: row.original_price,
     image: row.image_url,
+    imagePositionX: Number(row.image_position_x ?? 50),
+    imagePositionY: Number(row.image_position_y ?? 50),
     colors: parseColors(row.colors),
     badge: row.badge,
     todayDispatch: row.today_dispatch === 1,

@@ -37,6 +37,8 @@ export const products = sqliteTable(
     price: integer('price').notNull(),
     originalPrice: integer('original_price').notNull(),
     imageUrl: text('image_url').notNull(),
+    imagePositionX: integer('image_position_x').notNull().default(50),
+    imagePositionY: integer('image_position_y').notNull().default(50),
     description: text('description').notNull().default(''),
     detailImages: text('detail_images').notNull().default('[]'),
     material: text('material').notNull().default(''),

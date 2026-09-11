@@ -11,12 +11,12 @@ export async function POST(request: Request) {
     await getD1()
       .prepare(
         `INSERT INTO products (
-          id, name, brand, category, price, original_price, image_url,
+          id, name, brand, category, price, original_price, image_url, image_position_x, image_position_y,
           description, detail_images, material, origin, manufacturer, size_chart,
           seller_name, seller_representative, seller_address, seller_business_number,
           seller_mail_order_number, seller_email, seller_phone, colors,
           badge, today_dispatch, active, sale_status, style_tag, sort_order, stock, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
       )
       .bind(
         crypto.randomUUID(),
@@ -26,6 +26,8 @@ export async function POST(request: Request) {
         product.price,
         product.originalPrice,
         product.imageUrl,
+        product.imagePositionX,
+        product.imagePositionY,
         product.description,
         JSON.stringify(product.detailImages),
         product.material,

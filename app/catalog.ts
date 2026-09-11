@@ -26,6 +26,8 @@ export type Product = {
   price: number;
   original: number;
   image: string;
+  imagePositionX?: number;
+  imagePositionY?: number;
   colors: string[];
   sample: boolean;
   badge?: string;

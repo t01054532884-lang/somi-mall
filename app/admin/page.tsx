@@ -508,7 +508,11 @@ function ProductFields({
           <option>테토녀</option>
         </select>
       </label>
-      <ImageUploader value={product?.image} />
+      <ImageUploader
+        value={product?.image}
+        positionX={product?.imagePositionX}
+        positionY={product?.imagePositionY}
+      />
       <DetailImageUploader value={product?.detailImages} />
       <label className="field admin-wide">
         상품 상세 설명

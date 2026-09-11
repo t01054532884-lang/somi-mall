@@ -97,6 +97,9 @@ export default function StoreView({
                 <img
                   src={p.image}
                   alt={p.name}
+                  style={{
+                    objectPosition: `${p.imagePositionX ?? 50}% ${p.imagePositionY ?? 50}%`,
+                  }}
                   loading={index < 2 ? 'eager' : 'lazy'}
                   fetchPriority={index < 2 ? 'high' : 'low'}
                   decoding="async"
