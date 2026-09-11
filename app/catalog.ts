@@ -47,9 +47,12 @@ export type Product = {
 export const PRODUCT_COLLECTIONS = [
   'BEST',
   'NEW',
+  'MADE',
+  '오늘의할인',
   '아우터',
   '원피스',
   '니트',
+  '티셔츠',
   '블라우스/셔츠',
   '스커트',
   '팬츠',

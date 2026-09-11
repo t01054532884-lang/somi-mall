@@ -95,6 +95,25 @@ export default async function Admin({ searchParams }: AdminPageProps) {
       {!databaseReady ? (
         <p className="error">데이터베이스 배포 후 상품 관리가 활성화됩니다.</p>
       ) : null}
+      <nav className="admin-dashboard-nav" aria-label="관리자 빠른 메뉴">
+        <a href="#display"><b>진열 관리</b><span>메뉴별 상품 구성</span></a>
+        <a href="#products"><b>상품 관리</b><span>{products.length}개 등록</span></a>
+        <a href="#orders"><b>주문·배송</b><span>{orders.length}건</span></a>
+        <a href="#reviews"><b>리뷰·문의</b><span>{reviews.length + inquiries.length}건</span></a>
+      </nav>
+      <section className="admin-display" id="display">
+        <div className="section-head">
+          <div><span className="eyebrow">STOREFRONT</span><h1>스토어 진열 관리</h1></div>
+          <a className="solid" href="/" target="_blank">쇼핑몰 미리보기</a>
+        </div>
+        <div className="display-grid">
+          {PRODUCT_COLLECTIONS.map((item) => {
+            const count = products.filter((product) => product.collections?.includes(item)).length;
+            return <a href={`/collection/${encodeURIComponent(item)}`} target="_blank" key={item}><span>{item}</span><b>{count}개 상품</b><small>상품 편집에서 노출 메뉴를 선택하세요.</small></a>;
+          })}
+          <a href="/today" target="_blank"><span>오늘출발</span><b>{products.filter((product) => product.todayDispatch).length}개 상품</b><small>오늘출발 체크 상품이 자동 노출됩니다.</small></a>
+        </div>
+      </section>
       <section className="admin-orders" id="orders">
         <div className="section-head">
           <div>
@@ -201,8 +220,8 @@ export default async function Admin({ searchParams }: AdminPageProps) {
       <section className="admin-card">
         <h1>새 상품 등록</h1>
         <p className="note">
-          대표 이미지뿐 아니라 상세 이미지, 설명, 실측 사이즈와 판매자 정보까지
-          입력할 수 있습니다.
+          목록 대표 이미지는 650 × 867px 세로 비율을 권장합니다. 상세 이미지는
+          가로 1000px 이상으로 같은 폭을 맞춰 등록해 주세요.
         </p>
         <form className="admin-form" action="/api/admin/products" method="post">
           <ProductFields />
@@ -211,7 +230,7 @@ export default async function Admin({ searchParams }: AdminPageProps) {
           </button>
         </form>
       </section>
-      <section className="admin-products">
+      <section className="admin-products" id="products">
         <div className="section-head">
           <div>
             <span className="eyebrow">PRODUCTS</span>
@@ -401,7 +420,8 @@ function ProductFields({
       </label>
       <fieldset className="collection-field admin-wide">
         <legend>
-          노출 목록 <small>두 개 이상 선택할 수 있습니다.</small>
+          스토어 메뉴 노출{' '}
+          <small>선택한 모든 메뉴에 상품이 동시에 노출됩니다.</small>
         </legend>
         <div className="collection-options">
           {PRODUCT_COLLECTIONS.map((item) => (
@@ -420,6 +440,14 @@ function ProductFields({
               <span>{item}</span>
             </label>
           ))}
+          <label>
+            <input
+              type="checkbox"
+              name="todayDispatch"
+              defaultChecked={product?.todayDispatch}
+            />
+            <span>오늘출발</span>
+          </label>
         </div>
       </fieldset>
       <label className="field">
@@ -579,14 +607,6 @@ function ProductFields({
           type="tel"
           defaultValue={product?.seller?.phone}
         />
-      </label>
-      <label className="check">
-        <input
-          name="todayDispatch"
-          type="checkbox"
-          defaultChecked={product?.todayDispatch}
-        />{' '}
-        오늘출발
       </label>
       <label className="check">
         <input

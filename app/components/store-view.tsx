@@ -5,15 +5,19 @@ import { money, PRODUCT_COLLECTIONS, type Product } from '@/app/catalog';
 export default function StoreView({
   mode,
   products,
+  initialCollection = '',
+  todayOnly = false,
 }: {
   mode: 'category' | 'wishlist' | 'cart';
   products: Product[];
+  initialCollection?: string;
+  todayOnly?: boolean;
 }) {
   const [wish, setWish] = useState<string[]>([]),
     [cart, setCart] = useState<
       { product: Product; color: string; qty: number }[]
     >([]),
-    [cat, setCat] = useState('전체'),
+    [cat, setCat] = useState(initialCollection || '전체'),
     [style, setStyle] = useState('');
   useEffect(
     () => setStyle(new URLSearchParams(location.search).get('style') || ''),
@@ -38,6 +42,9 @@ export default function StoreView({
     mode === 'wishlist'
       ? products.filter((p) => wish.includes(p.id))
       : products.filter((p) =>
+          todayOnly
+            ? p.todayDispatch
+            :
           curated
             ? p.styleTag === curated
             : cat === '전체' ||
@@ -45,6 +52,7 @@ export default function StoreView({
               p.collections?.includes(cat),
         );
   const title =
+    (todayOnly ? '오늘출발' : '') ||
     style ||
     (mode === 'category'
       ? '카테고리'
@@ -62,8 +70,15 @@ export default function StoreView({
         <span />
       </header>
       {mode === 'category' && (
+        <div className="listing-hero">
+          <span>SHOP SOMIMALL</span>
+          <h1>{title}</h1>
+          <p>{todayOnly ? '오늘 주문하고 빠르게 받아보는 상품' : '소미몰이 직접 고른 데일리 스타일'}</p>
+        </div>
+      )}
+      {mode === 'category' && (
         <div className="categories">
-          {(curated ? [style] : ['전체', ...PRODUCT_COLLECTIONS]).map((x) => (
+          {(todayOnly ? ['오늘출발'] : curated ? [style] : ['전체', ...PRODUCT_COLLECTIONS]).map((x) => (
             <button
               className={cat === x || x === style ? 'selected' : ''}
               onClick={() => setCat(x)}
