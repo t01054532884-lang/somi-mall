@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}데이터 연동{% endblock %}
+{% block content %}
+<h1>데이터 연동</h1>
+<p class="sub">쇼핑몰의 상품·재고·주문과 방문 기록을 가져옵니다. 고객 이름, 연락처, 주소 같은 개인정보는 저장하지 않습니다.</p>
+
+<div class="grid kpis">
+  <div class="kpi"><div class="label">상품</div><div class="value">{{ stats.products|num }}개</div></div>
+  <div class="kpi"><div class="label">주문 상품 줄</div><div class="value">{{ stats.sales|num }}줄</div><span class="delta muted">최근 주문 {{ (stats.last_sale or '-')[:16] }} (UTC)</span></div>
+  <div class="kpi"><div class="label">방문 기록</div><div class="value">{{ stats.events|num }}건</div><span class="delta muted">최근 방문 {{ (stats.last_event or '-')[:16] }} (UTC)</span></div>
+</div>
+
+{% if stats.demo %}
+<div class="card">
+  <h2>샘플 데이터 사용 중</h2>
+  <p class="muted">화면 확인용 샘플 상품, 도매처, 주문, 방문 기록이 들어 있습니다. 실제 데이터를 연결하기 전에 삭제해 주세요.</p>
+  <form method="post" action="/data/demo/clear" class="inline" onsubmit="return confirm('샘플 데이터를 모두 삭제할까요?')"><button>샘플 삭제</button></form>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>1. 쇼핑몰 자동 동기화</h2>
+  <p class="muted">쇼핑몰에 연동용 주소(<code>/api/traffic/export</code>)를 추가하면 버튼 한 번, 또는 정기 작업으로 상품·재고·주문을 가져옵니다. 추가 방법은 <code>traffic/mall-integration/README.md</code>에 있습니다.</p>
+  {% if sync_configured %}
+  <form method="post" action="/data/sync" class="inline"><button class="primary">지금 동기화</button></form>
+  {% else %}
+  <p class="flash error">이 서버에 <code>MALL_EXPORT_URL</code>, <code>MALL_EXPORT_TOKEN</code> 환경 변수가 아직 없습니다.</p>
+  {% endif %}
+</div>
+
+<div class="grid two">
+  <div class="card">
+    <h2>2. 주문 CSV 올리기</h2>
+    <p class="small muted">소미몰 관리자 화면의 <strong>주문 CSV 내보내기</strong> 파일을 그대로 올리면 됩니다. 같은 주문을 다시 올려도 중복되지 않고 상태만 갱신됩니다.</p>
+    <form method="post" action="/data/import/orders" enctype="multipart/form-data" class="inline">
+      <input type="file" name="file" accept=".csv,text/csv" required aria-label="주문 CSV 파일">
+      <button class="primary">올리기</button>
+    </form>
+  </div>
+  <div class="card">
+    <h2>3. 상품·재고 CSV 올리기</h2>
+    <p class="small muted">열 이름: <code>상품ID, 상품명, 판매가, 재고</code> (브랜드, 카테고리는 선택). 엑셀이나 구글 시트에서 CSV로 저장해 올려 주세요.</p>
+    <form method="post" action="/data/import/products" enctype="multipart/form-data" class="inline">
+      <input type="file" name="file" accept=".csv,text/csv" required aria-label="상품 CSV 파일">
+      <button class="primary">올리기</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h2>4. 방문 추적 코드</h2>
+  <p class="muted">쇼핑몰의 <code>app/layout.tsx</code> <code>&lt;body&gt;</code> 안에 아래 한 줄을 넣으면 방문, 유입 경로, 상품 조회가 기록됩니다. 쿠키 대신 브라우저에 임의 ID만 저장합니다.</p>
+  <pre>&lt;script src="{{ base_url }}/t.js" defer&gt;&lt;/script&gt;</pre>
+  <p class="small muted">장바구니 담기·주문서 진입도 세려면 해당 버튼에서 <code>window.somiTrack?.('add_to_cart', {product_id: '상품ID'})</code>, <code>window.somiTrack?.('checkout')</code>를 호출해 주세요.</p>
+</div>
+
+<div class="card">
+  <h2>5. 정기 작업</h2>
+  <p class="muted">아래 주소를 하루 몇 번 호출하면 쇼핑몰 동기화와 도매가 자동 확인이 함께 실행됩니다. GitHub Actions 예시는 <code>traffic/README.md</code>에 있습니다.</p>
+  <pre>curl -X POST -H "Authorization: Bearer $CRON_TOKEN" {{ base_url }}/api/cron/run</pre>
+</div>
+{% endblock %}

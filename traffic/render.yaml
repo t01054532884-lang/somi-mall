@@ -1,0 +1,31 @@
+# Render 블루프린트. Render에서 New > Blueprint를 고르고 블루프린트 경로를 traffic/render.yaml로 지정하세요.
+services:
+  - type: web
+    name: somi-traffic
+    runtime: python
+    rootDir: traffic
+    plan: starter # 영구 디스크는 유료 인스턴스에서만 쓸 수 있습니다.
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips "*"
+    healthCheckPath: /healthz
+    disk:
+      name: traffic-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: DATA_DIR
+        value: /var/data
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+      - key: CRON_TOKEN
+        generateValue: true
+      - key: MALL_EXPORT_URL
+        sync: false
+      - key: MALL_EXPORT_TOKEN
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false

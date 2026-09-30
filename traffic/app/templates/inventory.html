@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_pill %}
+{% block title %}재고·발주{% endblock %}
+{% block content %}
+<div class="head">
+  <div>
+    <h1>재고·발주</h1>
+    <p class="sub">
+      최근 판매 속도로 재고가 며칠 버티는지 계산하고, 입고 소요일 + 안전 재고 {{ settings.safety_days|num }}일 안에 떨어지는 상품은
+      {{ settings.cover_days|num }}일치를 더 채우도록 발주 수량을 추천합니다. 도매처는 원가가 가장 싼 곳을 기준으로 합니다.
+    </p>
+  </div>
+  <a class="button" href="/inventory/reorder.csv">엑셀·시트용 CSV 내려받기</a>
+</div>
+
+<div class="grid kpis">
+  <div class="kpi"><div class="label">품절</div><div class="value">{{ plan|selectattr('status', 'equalto', '품절')|list|length }}개</div></div>
+  <div class="kpi"><div class="label">발주 필요</div><div class="value">{{ plan|selectattr('status', 'equalto', '발주 필요')|list|length }}개</div></div>
+  <div class="kpi"><div class="label">주의</div><div class="value">{{ plan|selectattr('status', 'equalto', '주의')|list|length }}개</div></div>
+  <div class="kpi"><div class="label">추천대로 발주할 때 예상 금액</div><div class="value">{{ total_cost|won }}</div></div>
+</div>
+
+<div class="card">
+  <h2>발주 계획</h2>
+  {% if plan %}
+  <div class="table-wrap"><table>
+    <tr>
+      <th>상태</th><th>상품</th><th class="num">재고</th><th class="num">입고 예정</th><th class="num">7일 판매</th><th class="num">30일 판매</th>
+      <th class="num">하루 판매량</th><th class="num">소진까지</th><th>추천 도매처</th><th class="num">개당 원가</th><th class="num">마진</th><th>발주 기록</th>
+    </tr>
+    {% for row in plan %}
+    <tr>
+      <td>{{ status_pill(row.status) }}</td>
+      <td class="wrap">{{ row.name }}<div class="small muted">판매가 {{ row.price|won }}</div></td>
+      <td class="num">{{ row.stock|num if row.stock is not none else '미확인' }}</td>
+      <td class="num">{{ row.on_order|num }}</td>
+      <td class="num">{{ row.units7|num }}</td>
+      <td class="num">{{ row.units30|num }}</td>
+      <td class="num">{{ row.velocity|num(2) }}</td>
+      <td class="num">{{ (row.days_left|num(1) ~ '일') if row.days_left is not none else '-' }}</td>
+      <td class="small">
+        {% if row.source %}{{ row.source.supplier_name }}<div class="muted">{{ row.source.title }} · 입고 {{ row.lead_days|num }}일{% if row.source.min_order_qty > 1 %} · 최소 {{ row.source.min_order_qty }}개{% endif %}</div>
+        {% else %}<a href="/suppliers">도매처 연결하기</a>{% endif %}
+      </td>
+      <td class="num">{{ row.source.cost_krw|won if row.source else '-' }}</td>
+      <td class="num">{{ (row.source.margin_pct|num(1) ~ '%') if row.source and row.source.margin_pct is not none else '-' }}</td>
+      <td>
+        <form method="post" action="/inventory/po" class="inline">
+          <input type="hidden" name="product_id" value="{{ row.product_id }}">
+          <input type="hidden" name="supplier_item_id" value="{{ row.source.id if row.source else '' }}">
+          <input class="qty" type="number" name="quantity" min="1" value="{{ row.quantity or '' }}" placeholder="수량" required aria-label="{{ row.name }} 발주 수량">
+          <button class="{{ 'primary' if row.quantity }}">기록</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table></div>
+  {% else %}
+  <p class="muted">상품이 없습니다. <a href="/data">데이터 연동</a>에서 쇼핑몰 상품을 가져와 주세요.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>발주 내역</h2>
+  <p class="small muted">'발주' 상태인 수량은 입고 예정으로 계산되어 같은 상품을 두 번 주문하지 않게 막아 줍니다. 입고되면 쇼핑몰 관리자 화면에서도 재고를 늘려 주세요.</p>
+  {% if orders %}
+  <div class="table-wrap"><table>
+    <tr><th>발주일</th><th>상품</th><th>도매처</th><th class="num">수량</th><th class="num">개당 원가</th><th class="num">합계</th><th>상태</th><th></th></tr>
+    {% for po in orders %}
+    <tr>
+      <td class="small">{{ po.created_at[:10] }}</td>
+      <td class="wrap">{{ po.product_name or po.product_id }}</td>
+      <td class="small">{{ po.supplier_name or '-' }}</td>
+      <td class="num">{{ po.quantity|num }}</td>
+      <td class="num">{{ po.unit_cost_krw|won }}</td>
+      <td class="num">{{ (po.unit_cost_krw * po.quantity)|won }}</td>
+      <td>{% if po.status == '발주' %}<span class="pill accent">입고 대기</span>{% else %}<span class="pill gray">입고 완료 {{ po.received_at[:10] }}</span>{% endif %}</td>
+      <td>
+        {% if po.status == '발주' %}
+        <form method="post" action="/inventory/po/{{ po.id }}/receive" class="inline"><button>입고 완료</button></form>
+        {% endif %}
+        <form method="post" action="/inventory/po/{{ po.id }}/delete" class="inline" onsubmit="return confirm('이 발주 기록을 삭제할까요?')"><button class="link">삭제</button></form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table></div>
+  {% else %}<p class="muted">아직 발주 기록이 없습니다.</p>{% endif %}
+</div>
+{% endblock %}

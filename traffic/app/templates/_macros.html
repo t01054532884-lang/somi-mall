@@ -1,0 +1,26 @@
+{% macro status_pill(status) -%}
+{%- set cls = {"품절": "bad", "발주 필요": "bad", "주의": "warn", "정상": "ok"}.get(status, "gray") -%}
+<span class="pill {{ cls }}">{{ status }}</span>
+{%- endmacro %}
+
+{% macro delta(value) -%}
+{%- if value is none -%}<span class="delta muted">이전 기간 데이터 없음</span>
+{%- elif value >= 0 -%}<span class="delta up">▲ {{ value|num(1) }}% 지난 기간 대비</span>
+{%- else -%}<span class="delta down">▼ {{ (-value)|num(1) }}% 지난 기간 대비</span>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro change(value) -%}
+{%- if value is none -%}<span class="muted">-</span>
+{%- elif value > 0 -%}<span class="down">▲ {{ value|num(1) }}%</span>
+{%- elif value < 0 -%}<span class="up">▼ {{ (-value)|num(1) }}%</span>
+{%- else -%}<span class="muted">0%</span>
+{%- endif -%}
+{%- endmacro %}
+
+{% macro spark(values) -%}
+{%- if values|length > 1 -%}
+{%- set low = values|min -%}{%- set high = values|max -%}
+<span class="spark" title="최근 가격 추이">{% for v in values %}<i style="height: {{ 20 + (80 * (v - low) / (high - low) if high > low else 40)|round }}%"></i>{% endfor %}</span>
+{%- endif -%}
+{%- endmacro %}

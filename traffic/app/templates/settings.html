@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}설정{% endblock %}
+{% block content %}
+<h1>설정</h1>
+<p class="sub">환율과 발주 계산 기준을 정합니다. 환율 기본값은 예시이므로 실제 환율(또는 배송대행지 결제 환율)로 바꿔 주세요.</p>
+<form method="post" action="/settings">
+  <div class="grid two">
+    <div class="card">
+      <h2>환율 (1단위당 원)</h2>
+      <div class="form-grid">
+        <label>중국 위안 (CNY)<input name="fx_CNY" type="number" step="0.01" min="0" value="{{ settings.fx_CNY }}"></label>
+        <label>일본 엔 (JPY)<input name="fx_JPY" type="number" step="0.001" min="0" value="{{ settings.fx_JPY }}"></label>
+        <label>미국 달러 (USD)<input name="fx_USD" type="number" step="0.01" min="0" value="{{ settings.fx_USD }}"></label>
+      </div>
+    </div>
+    <div class="card">
+      <h2>발주 기준</h2>
+      <div class="form-grid">
+        <label>기본 입고 소요일<input name="default_lead_days" type="number" min="0" value="{{ settings.default_lead_days|int }}"></label>
+        <label>안전 재고일<input name="safety_days" type="number" min="0" value="{{ settings.safety_days|int }}"></label>
+        <label>한 번에 채울 판매일<input name="cover_days" type="number" min="1" value="{{ settings.cover_days|int }}"></label>
+      </div>
+      <p class="small muted">
+        예: 하루 2개 팔리고 입고 10일, 안전 재고 5일, 채울 판매일 21일이면 재고가 30개(2 × 15일) 이하일 때
+        72개(2 × 36일)가 되도록 발주를 추천합니다. 도매처를 연결한 상품은 그 도매처의 입고 소요일을 씁니다.
+      </p>
+    </div>
+  </div>
+  <button class="primary">저장</button>
+</form>
+{% endblock %}
