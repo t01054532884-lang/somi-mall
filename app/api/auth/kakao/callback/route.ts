@@ -82,7 +82,7 @@ export async function GET(request: Request) {
     const displayName =
       account?.profile?.nickname ??
       kakaoUser.properties?.nickname ??
-      '소미몰 회원';
+      'CHOOSE-C 회원';
     const avatarUrl =
       account?.profile?.profile_image_url ??
       kakaoUser.properties?.profile_image ??

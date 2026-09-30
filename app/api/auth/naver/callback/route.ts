@@ -70,7 +70,7 @@ export async function GET(request: Request) {
     // 관리자로 인정하지 않도록 회원 고유 주소를 쓴다.
     const providerUserId = profile.id;
     const email = `naver_${providerUserId}@users.somimall.local`;
-    const displayName = profile.nickname ?? profile.name ?? '소미몰 회원';
+    const displayName = profile.nickname ?? profile.name ?? 'CHOOSE-C 회원';
     const avatarUrl = profile.profile_image ?? null;
 
     const existing = await getD1()

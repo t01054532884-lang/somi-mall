@@ -71,9 +71,9 @@ export default function StoreView({
       </header>
       {mode === 'category' && (
         <div className="listing-hero">
-          <span>SHOP SOMIMALL</span>
+          <span>SHOP CHOOSE-C</span>
           <h1>{title}</h1>
-          <p>{todayOnly ? '오늘 주문하고 빠르게 받아보는 상품' : '소미몰이 직접 고른 데일리 스타일'}</p>
+          <p>{todayOnly ? '오늘 주문하고 빠르게 받아보는 상품' : 'CHOOSE-C가 직접 고른 데일리 스타일'}</p>
         </div>
       )}
       {mode === 'category' && (

@@ -1,6 +1,6 @@
 # somi-mall
 
-소미몰 쇼핑몰 (vinext + Cloudflare Workers, D1 데이터베이스, R2 이미지 저장소)과
+CHOOSE-C 쇼핑몰 (구 소미몰) (vinext + Cloudflare Workers, D1 데이터베이스, R2 이미지 저장소)과
 운영 대시보드 [`traffic/`](traffic/README.md) (Python, AWS EC2).
 
 ## Cloudflare 배포

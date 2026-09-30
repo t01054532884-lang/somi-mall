@@ -38,7 +38,7 @@ export default async function Admin({ searchParams }: AdminPageProps) {
     return (
       <main className="panel">
         <a className="logo" href="/">
-          somimall
+          CHOOSE-C
           <i />
         </a>
         <h1>관리자 로그인</h1>
@@ -74,7 +74,7 @@ export default async function Admin({ searchParams }: AdminPageProps) {
       <header className="admin-header">
         <div>
           <a className="logo" href="/">
-            somimall
+            CHOOSE-C
             <i />
           </a>
           <p>운영자 전용 상품 관리</p>

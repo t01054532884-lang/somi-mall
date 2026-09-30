@@ -143,7 +143,7 @@ export default function ProductDetail({
         </button>
         <p>
           {product.description ||
-            '매일 입기 좋은 소미몰 셀렉트 아이템이에요. 편안한 핏과 활용도 높은 디자인으로 준비했습니다.'}
+            '매일 입기 좋은 CHOOSE-C 셀렉트 아이템이에요. 편안한 핏과 활용도 높은 디자인으로 준비했습니다.'}
         </p>
         <div className="delivery">
           <Truck size={19} />
@@ -474,7 +474,7 @@ function Reviews({
             ) : null}
             {r.adminReply ? (
               <div className="admin-public-reply">
-                <b>소미몰 답변</b>
+                <b>CHOOSE-C 답변</b>
                 <p>{r.adminReply}</p>
               </div>
             ) : null}

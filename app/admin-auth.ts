@@ -17,7 +17,7 @@ export async function getAdminUser(): Promise<AdminUser | null> {
   const runtime = env as unknown as AdminEnvironment;
   const sessionToken = runtime.ADMIN_SESSION_TOKEN ?? process.env.ADMIN_SESSION_TOKEN;
   if (sessionToken && (await cookies()).get('somi_admin')?.value === sessionToken) {
-    return { userId: 'password-admin', displayName: '소미몰 운영자', email: 'admin@somimall.local' };
+    return { userId: 'password-admin', displayName: 'CHOOSE-C 운영자', email: 'admin@somimall.local' };
   }
 
   const adminEmail = runtime.ADMIN_EMAIL ?? process.env.ADMIN_EMAIL;
