@@ -1,9 +1,18 @@
 /* oxlint-disable next/no-html-link-for-pages, next/no-img-element */
 import { getMemberSession, safeReturnTo } from '../google-auth';
+import { isLocalMemberEmail } from '../local-auth';
 import { getAdminUser } from '../admin-auth';
 import { getMemberCoupon, listMemberOrders } from '@/db/orders';
 
 export const dynamic = 'force-dynamic';
+
+// 사이트·네이버 회원은 내부용 주소를 쓰므로 가입 경로만 보여 준다.
+function memberLabel(email: string) {
+  if (isLocalMemberEmail(email)) return `아이디 ${email.slice('local_'.length, email.indexOf('@'))}`;
+  if (email.startsWith('naver_') && email.endsWith('@users.somimall.local')) return '네이버 간편 로그인 회원';
+  if (email.startsWith('kakao_') && email.endsWith('@users.somimall.local')) return '카카오 간편 로그인 회원';
+  return email;
+}
 
 type AccountPageProps = {
   searchParams?: Promise<{ error?: string; returnTo?: string }>;
@@ -27,10 +36,10 @@ export default async function Account({ searchParams }: AccountPageProps) {
   return (
     <main className="panel">
       <a className="logo" href="/">
-        somimall
+        CHOOSE-C
         <i />
       </a>
-      <h1>마이 소미몰</h1>
+      <h1>마이 CHOOSE-C</h1>
       {error ? <p className="error">{error}</p> : null}
       {admin ? (
         <a className="account-admin-link" href="/admin">
@@ -46,7 +55,7 @@ export default async function Account({ searchParams }: AccountPageProps) {
             ) : null}
             <div>
               <strong>{user.displayName}님, 반가워요.</strong>
-              <p>{user.email}</p>
+              <p>{memberLabel(user.email)}</p>
             </div>
           </section>
           <div className="row">
@@ -98,9 +107,19 @@ export default async function Account({ searchParams }: AccountPageProps) {
       ) : (
         <>
           <p>
-            카카오, 네이버 또는 Google 계정으로 간편하게 가입하고 주문과 찜 목록을 어느
-            기기에서나 확인하세요.
+            회원으로 가입하고 주문과 찜 목록을 어느 기기에서나 확인하세요.
           </p>
+          <div className="account-member-actions">
+            <a className="solid" href={`/login?returnTo=${encodedReturnTo}`}>
+              아이디로 로그인
+            </a>
+            <a className="google-signin" href={`/signup?returnTo=${encodedReturnTo}`}>
+              회원가입
+            </a>
+          </div>
+          <div className="auth-divider">
+            <span>SNS 간편 로그인</span>
+          </div>
           <a
             className="kakao-signin"
             href={`/api/auth/kakao/start?returnTo=${encodedReturnTo}`}

@@ -14,6 +14,15 @@ export const members = sqliteTable(
       .notNull()
       .default(false),
     status: text('status').notNull().default('active'),
+    // 사이트 회원(auth_provider = 'local')만 사용한다.
+    passwordHash: text('password_hash'),
+    failedLogins: integer('failed_logins').notNull().default(0),
+    lockedUntil: text('locked_until'),
+    phone: text('phone').notNull().default(''),
+    contactEmail: text('contact_email').notNull().default(''),
+    marketingSms: integer('marketing_sms', { mode: 'boolean' }).notNull().default(false),
+    marketingEmail: integer('marketing_email', { mode: 'boolean' }).notNull().default(false),
+    termsAgreedAt: text('terms_agreed_at'),
     createdAt: text('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
     lastLoginAt: text('last_login_at').notNull().default(sql`CURRENT_TIMESTAMP`),

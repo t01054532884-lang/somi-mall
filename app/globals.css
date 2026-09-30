@@ -95,3 +95,28 @@ footer{margin-top:90px;background:#fafafa;border-color:#eee;padding-inline:24px}
 .brand-intro-row{display:flex;justify-content:flex-end;padding:24px 0 20px}.brand-note{width:min(390px,100%);padding:18px 20px;background:#f7f4f3;border:1px solid #eee9e6}.brand-note>span{display:block;margin-bottom:11px;color:#9a747c;font-size:10px;font-weight:700;letter-spacing:.18em}.brand-note p{margin:3px 0;color:#4c4644;font-size:13px;line-height:1.65}.brand-note p:first-of-type{font-weight:700;color:#222}
 .crop-range{display:grid!important;grid-template-columns:65px 1fr 42px;align-items:center;gap:10px;margin-top:12px;font-size:12px}.crop-range input{padding:0!important}.crop-range output{text-align:right;color:#777}.image-standard-grid>img{object-fit:cover}
 @media(max-width:650px){.brand-intro-row{padding:14px 0}.brand-note{width:100%;padding:15px 17px}.brand-note p{font-size:12px}}
+
+/* 사이트 회원 로그인·회원가입 */
+.member-panel{max-width:460px}
+.member-form{max-width:420px}
+.member-form h2{font-size:16px;margin:28px 0 4px;padding-bottom:10px;border-bottom:1px solid #222}
+.member-form .field small{color:#888;font-size:12px;font-weight:400}
+.member-inline{display:flex;gap:8px}
+.member-inline input{flex:1;min-width:0}
+.member-outline{flex:none;border:1px solid #242429;border-radius:3px;padding:0 14px;font-size:13px;background:#fff}
+.member-ok{color:#1a7f4b;font-size:13px}
+.member-check{display:flex;align-items:center;gap:8px;font-size:14px;margin:10px 0;cursor:pointer}
+.member-check input{width:17px;height:17px;accent-color:#242429}
+.member-check-all{font-weight:700;font-size:15px}
+.member-agree{border:1px solid #e3e3e3;border-radius:4px;padding:6px 16px 10px;margin-top:14px}
+.member-agree-note{margin:0 0 8px 25px;color:#888;font-size:12px}
+.member-terms{margin:-4px 0 6px 25px;font-size:12px;color:#777}
+.member-terms summary{cursor:pointer;text-decoration:underline}
+.member-terms pre{white-space:pre-wrap;font-family:inherit;background:#f7f7f7;padding:10px;border-radius:3px;max-height:160px;overflow:auto;line-height:1.6}
+.member-submit{width:100%;height:50px;margin-top:14px;font-size:15px}
+.member-links{display:flex;justify-content:center;gap:16px;margin:16px 0 4px;font-size:13px;color:#555}
+.member-links a{text-decoration:underline}
+.member-sns-title{max-width:420px;margin:30px 0 4px}
+.member-panel .auth-buttons{display:grid;gap:8px;max-width:420px}
+.member-panel .kakao-signin,.member-panel .naver-signin,.member-panel .google-signin{max-width:none}
+.account-member-actions{display:grid;gap:8px;max-width:360px;margin:18px 0}
