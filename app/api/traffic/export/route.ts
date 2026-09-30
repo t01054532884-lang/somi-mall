@@ -1,6 +1,4 @@
-// 이 파일을 쇼핑몰의 app/api/traffic/export/route.ts 로 복사하세요.
-// 트래픽 대시보드가 상품·재고·주문을 가져가는 읽기 전용 주소입니다.
-// 고객 이름, 연락처, 주소, 이메일은 내보내지 않습니다.
+// 트래픽 대시보드가 상품·재고·주문을 가져가는 읽기 전용 주소. 고객 이름·연락처·주소·이메일은 내보내지 않는다.
 import { env } from 'cloudflare:workers';
 import { getD1 } from '@/db';
 

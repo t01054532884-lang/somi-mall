@@ -7,6 +7,8 @@ export const OAUTH_STATE_COOKIE = 'somimall_google_state';
 export const OAUTH_RETURN_COOKIE = 'somimall_google_return';
 export const KAKAO_STATE_COOKIE = 'somimall_kakao_state';
 export const KAKAO_RETURN_COOKIE = 'somimall_kakao_return';
+export const NAVER_STATE_COOKIE = 'somimall_naver_state';
+export const NAVER_RETURN_COOKIE = 'somimall_naver_return';
 const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
 const GOOGLE_JWKS = createRemoteJWKSet(
   new URL('https://www.googleapis.com/oauth2/v3/certs'),
@@ -17,6 +19,8 @@ type RuntimeSecrets = {
   GOOGLE_CLIENT_SECRET?: string;
   KAKAO_REST_API_KEY?: string;
   KAKAO_CLIENT_SECRET?: string;
+  NAVER_CLIENT_ID?: string;
+  NAVER_CLIENT_SECRET?: string;
   AUTH_SECRET?: string;
 };
 
@@ -46,6 +50,17 @@ export function getKakaoAuthConfig() {
     runtime.KAKAO_CLIENT_SECRET ?? process.env.KAKAO_CLIENT_SECRET;
   if (!clientId || !clientSecret) {
     throw new Error('Kakao login environment variables are not configured.');
+  }
+  return { clientId, clientSecret };
+}
+
+export function getNaverAuthConfig() {
+  const runtime = env as unknown as RuntimeSecrets;
+  const clientId = runtime.NAVER_CLIENT_ID ?? process.env.NAVER_CLIENT_ID;
+  const clientSecret =
+    runtime.NAVER_CLIENT_SECRET ?? process.env.NAVER_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    throw new Error('Naver login environment variables are not configured.');
   }
   return { clientId, clientSecret };
 }
@@ -166,6 +181,23 @@ export function kakaoReturnCookie(returnTo: string, secure: boolean) {
 }
 export function clearKakaoReturnCookie(secure: boolean) {
   return serializeCookie(KAKAO_RETURN_COOKIE, '', 0, secure);
+}
+export function naverStateCookie(state: string, secure: boolean) {
+  return serializeCookie(NAVER_STATE_COOKIE, state, 600, secure);
+}
+export function clearNaverStateCookie(secure: boolean) {
+  return serializeCookie(NAVER_STATE_COOKIE, '', 0, secure);
+}
+export function naverReturnCookie(returnTo: string, secure: boolean) {
+  return serializeCookie(
+    NAVER_RETURN_COOKIE,
+    safeReturnTo(returnTo),
+    600,
+    secure,
+  );
+}
+export function clearNaverReturnCookie(secure: boolean) {
+  return serializeCookie(NAVER_RETURN_COOKIE, '', 0, secure);
 }
 export function safeReturnTo(value: string) {
   if (!value.startsWith('/') || value.startsWith('//')) return '/account';

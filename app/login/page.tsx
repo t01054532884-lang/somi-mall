@@ -38,6 +38,15 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <span>또는</span>
         </div>
         <a
+          className="naver-signin"
+          href={`/api/auth/naver/start?returnTo=${encodedReturnTo}`}
+        >
+          <span aria-hidden="true">N</span>네이버로 계속하기
+        </a>
+        <div className="auth-divider">
+          <span>또는</span>
+        </div>
+        <a
           className="google-signin"
           href={`/api/auth/google/start?returnTo=${encodedReturnTo}`}
         >

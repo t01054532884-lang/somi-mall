@@ -73,8 +73,8 @@ export async function GET(request: Request) {
     const account = kakaoUser.kakao_account;
     const verifiedEmail =
       account?.email &&
-      account.is_email_valid !== false &&
-      account.is_email_verified !== false
+      account.is_email_valid === true &&
+      account.is_email_verified === true
         ? account.email.toLowerCase()
         : null;
     const email =

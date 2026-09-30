@@ -41,6 +41,20 @@ cd traffic
 python -m unittest discover -s tests -t .
 ```
 
+## AWS EC2에 배포 (권장)
+
+1. EC2 콘솔에서 서울 리전(ap-northeast-2)에 Ubuntu 24.04, 프리 티어 대상 인스턴스(t3.micro 등)를 만듭니다.
+2. 보안 그룹 인바운드에 SSH(22), HTTP(80), HTTPS(443)를 엽니다.
+3. EC2 Instance Connect로 접속해 다음 한 줄을 실행하고, 안내에 따라 관리자 비밀번호를 입력합니다.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/t01054532884-lang/somi-mall/main/traffic/deploy/aws-setup.sh | sudo bash
+```
+
+설치가 끝나면 `https://traffic.<공인IP>.sslip.io` 주소가 표시됩니다. 도메인을 산 뒤에는 DNS에 `traffic.도메인` A 레코드를 서버 IP로 걸고,
+`/etc/somi-traffic.env`의 `DOMAIN`을 바꾼 다음 같은 설치 명령을 다시 실행하면 됩니다. 코드 업데이트도 같은 명령으로 합니다.
+공인 IP가 재시작 때 바뀌지 않도록 탄력적 IP(Elastic IP)를 연결해 두세요.
+
 ## Render에 배포
 
 1. Render에서 **New → Web Service**를 누르고 이 저장소를 연결합니다.

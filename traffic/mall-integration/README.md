@@ -5,10 +5,10 @@
 
 ## 1. 상품·재고·주문 자동 동기화
 
-1. `route.ts.example`을 쇼핑몰의 `app/api/traffic/export/route.ts`로 복사합니다.
+1. 연동 주소는 이미 쇼핑몰 코드에 들어 있습니다 (`app/api/traffic/export/route.ts`).
 2. 긴 무작위 문자열을 하나 만듭니다. 예: `python -c "import secrets; print(secrets.token_urlsafe(32))"`
-3. 쇼핑몰 호스팅의 비밀 설정에 `TRAFFIC_EXPORT_TOKEN`으로 그 값을 저장하고 다시 배포합니다.
-4. 트래픽 대시보드(Render)의 환경 변수에 다음을 넣습니다.
+3. Cloudflare 대시보드 → Workers → somimall → 설정 → 변수 및 비밀에 `TRAFFIC_EXPORT_TOKEN`(비밀)으로 저장합니다.
+4. 트래픽 서버의 `/etc/somi-traffic.env`에 다음을 넣습니다.
    - `MALL_EXPORT_URL` = `https://쇼핑몰주소/api/traffic/export`
    - `MALL_EXPORT_TOKEN` = 2번에서 만든 값
 5. 대시보드 **데이터 연동 → 지금 동기화**를 누릅니다.
@@ -30,5 +30,5 @@ export default function RootLayout({children}:{children:React.ReactNode}){return
 (window as any).somiTrack?.('checkout');
 ```
 
-다른 사이트가 가짜 방문을 보내지 못하게 하려면 대시보드 환경 변수 `ALLOWED_ORIGINS`에 쇼핑몰 주소(예: `https://somimall.example`)를 넣으세요.
+다른 사이트가 가짜 방문을 보내지 못하게 하려면 트래픽 서버 환경 변수 `ALLOWED_ORIGINS`에 쇼핑몰 주소(예: `https://somimall.example`)를 넣으세요.
 방문 기록은 브라우저별 임의 ID만 쓰지만, 개인정보처리방침에 "방문 통계 수집" 항목을 추가해 두는 것이 좋습니다.

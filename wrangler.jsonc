@@ -1,0 +1,23 @@
+// Cloudflare Workers 배포 설정. D1 database_id는 `wrangler d1 create somimall-db`로 만든 뒤 넣는다.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "somimall",
+  "main": "vinext/server/fetch-handler",
+  "compatibility_date": "2026-05-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "somimall-db",
+      "database_id": "00000000-0000-4000-8000-000000000000",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "IMAGES",
+      "bucket_name": "somimall-images"
+    }
+  ],
+  "observability": { "enabled": true }
+}

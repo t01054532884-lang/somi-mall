@@ -98,7 +98,7 @@ export default async function Account({ searchParams }: AccountPageProps) {
       ) : (
         <>
           <p>
-            카카오 또는 Google 계정으로 간편하게 가입하고 주문과 찜 목록을 어느
+            카카오, 네이버 또는 Google 계정으로 간편하게 가입하고 주문과 찜 목록을 어느
             기기에서나 확인하세요.
           </p>
           <a
@@ -106,6 +106,15 @@ export default async function Account({ searchParams }: AccountPageProps) {
             href={`/api/auth/kakao/start?returnTo=${encodedReturnTo}`}
           >
             <span aria-hidden="true">K</span>카카오로 계속하기
+          </a>
+          <div className="auth-divider">
+            <span>또는</span>
+          </div>
+          <a
+            className="naver-signin"
+            href={`/api/auth/naver/start?returnTo=${encodedReturnTo}`}
+          >
+            <span aria-hidden="true">N</span>네이버로 계속하기
           </a>
           <div className="auth-divider">
             <span>또는</span>

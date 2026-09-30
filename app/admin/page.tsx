@@ -1,11 +1,6 @@
 /* oxlint-disable next/no-html-link-for-pages, next/no-img-element */
 import { getAdminUser } from '../admin-auth';
 import {
-  chatGPTSignInPath,
-  chatGPTSignOutPath,
-  getChatGPTUser,
-} from '../chatgpt-auth';
-import {
   listAdminInquiries,
   listAdminProducts,
   listAdminReviews,
@@ -35,7 +30,6 @@ const messages: Record<string, string> = {
 };
 
 export default async function Admin({ searchParams }: AdminPageProps) {
-  const signedInUser = await getChatGPTUser();
   const admin = await getAdminUser();
   const query = await searchParams,
     status = query?.status,
