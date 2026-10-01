@@ -17,6 +17,7 @@
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-10-02 | 소셜 로그인 3종 실제 로그인 성공(카카오·네이버·구글), 구글 OAuth 앱 게시. `/privacy`·`/terms` 페이지 추가, 문의 메일 `help@choose-c.com`(Cloudflare 이메일 라우팅 → gmail) |
 | 2026-10-02 | admin 운영 도구 배포: 마이그레이션 0008 적용, 6시간 Cron 등록 |
 | 2026-10-01 | traffic 기능을 admin으로 이전: `/admin/insights`, `/admin/inventory`, `/admin/wholesale`, 방문 기록 `/api/collect`, 6시간마다 도매가 자동 확인(Cron), 입고 완료 시 재고 자동 증가. `/api/traffic/export` 삭제 |
 | 2026-10-01 | 계획 변경: traffic 기능은 admin으로 통합, 고객용 피팅 사이트는 `fit.choose-c.com` |
@@ -46,7 +47,7 @@ pnpm build
 - [x] 배포: `pnpm build` → `npx wrangler deploy --config dist/server/wrangler.json` — 2026-10-02
 - [x] Cron(6시간마다) 등록 — 2026-10-02. Cron에는 계정의 workers.dev 서브도메인이 필요해서 `choose-c`로 등록함 (쇼핑몰 Worker는 `workers_dev: false`라 그 주소로 열리지 않음)
 - [ ] `choose-c.com/admin/insights`, `/admin/inventory`, `/admin/wholesale` 화면 확인 (관리자 로그인 필요)
-- [ ] 도매처·도매 상품 등록, 환율 실제 값으로 변경
+- [ ] 도매처·도매 상품 등록, 환율 실제 값으로 변경 — **사업자등록 후** (도매 계약에 사업자 필요)
 - 완료: D1 테이블, 3개 메뉴, 방문 기록, Cron 처리기, 발주 CSV, 계산 테스트 8개, SQL 쿼리 44개 검증
 
 ### fit.choose-c.com (독립 서비스, 2026-10-01 결정)
@@ -65,10 +66,15 @@ pnpm build
 - [ ] 아래 "다음 기능: 가상 피팅" 계획대로 MVP 개발
 
 ### 로그인·운영
-- [ ] 카카오·네이버·구글 콘솔에 콜백 주소 등록: `https://choose-c.com/api/auth/{kakao|naver|google}/callback`
-- [ ] 네이버 로그인 실제 테스트
-- [ ] 결제 연동 (현재 주문은 "결제수단 미연결")
-- [ ] 개인정보처리방침에 방문 통계 수집 항목 추가
+- [x] 카카오·네이버·구글 콘솔에 콜백 주소 등록, 키 등록, 실제 로그인 테스트 — 2026-10-02
+- [x] 구글 OAuth 앱 게시(프로덕션) — 2026-10-02
+- [x] 개인정보처리방침(`/privacy`, 방문 통계 항목 포함)·이용약관(`/terms`) 초안 — 2026-10-02
+- [ ] **네이버 검수 요청**: 지금은 "개발 중"이라 멤버로 등록한 네이버 아이디만 로그인 가능
+- [ ] 카카오 연결 해제 웹훅 설정 (정식 오픈 전)
+- [ ] 사업자등록 후 `app/legal.ts`에 상호·대표자·사업자등록번호·통신판매업 신고번호 추가, 약관 전문가 검토
+- [ ] 결제 연동 (현재 주문은 "결제수단 미연결") — 결제대행사를 개인정보처리방침 위탁 업체에 추가
+- [ ] 아이디·비밀번호 찾기 (문자·메일 발송 서비스 필요)
+- [ ] 로그아웃 시 관리자 로그인도 해제 (지금은 유지 — 나중에 변경)
 - [ ] 기존 타입 오류 2개 정리 (`app/admin/login-form.tsx`, `db/products.ts`)
 - [ ] 재고 발주 추천: 품절이면 입고가 빠른 도매처를 우선하는 규칙 추가
 
