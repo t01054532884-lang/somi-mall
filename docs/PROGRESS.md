@@ -8,7 +8,7 @@
 |---|---|---|---|
 | `choose-c.com`, `www.choose-c.com` | Cloudflare Workers (`shop`) + D1 + R2 | 메인 쇼핑몰 | 배포됨 |
 | `choose-c.com/admin` | 같은 Worker | 상품 등록, 주문·리뷰·문의 관리 + (예정) 재고·발주, 도매가 추적, 매출·방문 분석 | 배포됨, 운영 기능 이전 예정 |
-| `fit.choose-c.com` (예정) | Cloudflare | 고객용 가상 피팅·여러 쇼핑몰 상품 비교 | 기획 |
+| `fit.choose-c.com` (예정) | Cloudflare Worker `fit` (별도 저장소) | 독립 서비스: 여러 쇼핑몰 상품 AI 가상 피팅·비교 | 기획 |
 
 > 2026-10-01 결정: 별도 traffic 서버(AWS)는 만들지 않는다. traffic 기능은 `choose-c.com/admin`으로 옮겨
 > 같은 D1 DB를 직접 쓰고, 고객용 새 사이트는 `fit.choose-c.com`으로 연다.
@@ -36,8 +36,20 @@
 - [ ] 이전 후 `traffic/` Python 코드와 `/api/traffic/export` 정리 (계산 로직 검증용으로 잠시 유지)
 - 참고: 계산 방식은 `traffic/README.md`의 "발주 추천 계산"을 그대로 따른다
 
-### fit.choose-c.com
-- [ ] Cloudflare DNS와 Worker 라우트 연결 (아래 "다음 기능: 가상 피팅" 계획 참고)
+### fit.choose-c.com (독립 서비스, 2026-10-01 결정)
+쇼핑몰과 별개 서비스로 키운다. 피팅 사이트가 모은 고객이 CHOOSE-C 쇼핑몰 성장에도 도움이 되는 구조.
+
+| 항목 | 결정 |
+|---|---|
+| 코드 | 새 GitHub 저장소 (이 저장소와 분리) |
+| 서버 | 같은 Cloudflare 계정의 별도 Worker `fit` + 전용 D1(회원·구독·피팅 기록) + 전용 R2(피팅 결과 이미지) |
+| AI 피팅 생성 | 초기에는 외부 AI API 호출(쓴 만큼 비용). 이용량이 커져 API 비용이 더 비싸지면 GPU 서버(AWS 등) 검토 |
+| 회원 | 쇼핑몰과 분리된 자체 회원 |
+| CHOOSE-C 상품 | 다른 제휴 쇼핑몰처럼 상품 피드로 연결 |
+
+- [ ] 새 저장소 생성
+- [ ] Cloudflare DNS와 Worker 라우트 연결
+- [ ] 아래 "다음 기능: 가상 피팅" 계획대로 MVP 개발
 
 ### 로그인·운영
 - [ ] 카카오·네이버·구글 콘솔에 콜백 주소 등록: `https://choose-c.com/api/auth/{kakao|naver|google}/callback`
