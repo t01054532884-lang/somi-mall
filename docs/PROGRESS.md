@@ -1,13 +1,13 @@
 # CHOOSE-C 진행 현황
 
-마지막 업데이트: 2026-10-01
+마지막 업데이트: 2026-10-02
 
 ## 서비스 구성
 
 | 주소 | 서버 | 역할 | 상태 |
 |---|---|---|---|
 | `choose-c.com`, `www.choose-c.com` | Cloudflare Workers (`shop`) + D1 + R2 | 메인 쇼핑몰 | 배포됨 |
-| `choose-c.com/admin` | 같은 Worker | 상품 등록, 주문·리뷰·문의 관리 + 매출·방문 분석, 재고·발주, 도매가 추적 | 코드 완료, **마이그레이션 0008 적용 후 배포 필요** |
+| `choose-c.com/admin` | 같은 Worker | 상품 등록, 주문·리뷰·문의 관리 + 매출·방문 분석, 재고·발주, 도매가 추적 | 배포됨 (2026-10-02) |
 | `fit.choose-c.com` (예정) | Cloudflare Worker `fit` ([fit.choose-c 저장소](https://github.com/t01054532884-lang/fit.choose-c)) | 독립 서비스: 여러 쇼핑몰 상품 AI 가상 피팅·비교 | 기획 |
 
 > 2026-10-01 결정: 별도 traffic 서버(AWS)는 만들지 않는다. traffic 기능은 `choose-c.com/admin`으로 옮겨
@@ -17,6 +17,7 @@
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-10-02 | admin 운영 도구 배포: 마이그레이션 0008 적용, 6시간 Cron 등록 |
 | 2026-10-01 | traffic 기능을 admin으로 이전: `/admin/insights`, `/admin/inventory`, `/admin/wholesale`, 방문 기록 `/api/collect`, 6시간마다 도매가 자동 확인(Cron), 입고 완료 시 재고 자동 증가. `/api/traffic/export` 삭제 |
 | 2026-10-01 | 계획 변경: traffic 기능은 admin으로 통합, 고객용 피팅 사이트는 `fit.choose-c.com` |
 | 2026-10-01 | 아이디·비밀번호 회원가입·로그인 (PBKDF2, 5회 실패 시 10분 잠금) |
@@ -41,11 +42,11 @@ pnpm build
 ## 해야 할 일
 
 ### admin 운영 도구 배포 (다음에 할 일)
-- [ ] 원격 DB에 마이그레이션 적용: `npx wrangler d1 migrations apply somimall-db --remote` (0008_operations)
-- [ ] 배포: `pnpm build` → `npx wrangler deploy --config dist/server/wrangler.json`
-- [ ] `choose-c.com/admin/insights`, `/admin/inventory`, `/admin/wholesale` 화면 확인
+- [x] 원격 DB에 마이그레이션 적용: `npx wrangler d1 migrations apply somimall-db --remote` (0008_operations) — 2026-10-02
+- [x] 배포: `pnpm build` → `npx wrangler deploy --config dist/server/wrangler.json` — 2026-10-02
+- [x] Cron(6시간마다) 등록 — 2026-10-02. Cron에는 계정의 workers.dev 서브도메인이 필요해서 `choose-c`로 등록함 (쇼핑몰 Worker는 `workers_dev: false`라 그 주소로 열리지 않음)
+- [ ] `choose-c.com/admin/insights`, `/admin/inventory`, `/admin/wholesale` 화면 확인 (관리자 로그인 필요)
 - [ ] 도매처·도매 상품 등록, 환율 실제 값으로 변경
-- [ ] Cloudflare 대시보드 → Workers → shop → 설정 → 트리거에서 Cron(6시간마다) 등록 확인
 - 완료: D1 테이블, 3개 메뉴, 방문 기록, Cron 처리기, 발주 CSV, 계산 테스트 8개, SQL 쿼리 44개 검증
 
 ### fit.choose-c.com (독립 서비스, 2026-10-01 결정)
