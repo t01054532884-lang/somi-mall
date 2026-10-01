@@ -149,6 +149,7 @@ export default function SignupForm({ returnTo }: { returnTo: string }) {
         <details className="member-terms">
           <summary>내용 보기</summary>
           <pre>{TERMS}</pre>
+          <a href="/terms" target="_blank" rel="noreferrer">전문 보기</a>
         </details>
         <label className="member-check">
           <input type="checkbox" checked={agree.agreePrivacy} onChange={() => toggle('agreePrivacy')} />
@@ -157,6 +158,7 @@ export default function SignupForm({ returnTo }: { returnTo: string }) {
         <details className="member-terms">
           <summary>내용 보기</summary>
           <pre>{PRIVACY}</pre>
+          <a href="/privacy" target="_blank" rel="noreferrer">개인정보처리방침 전문 보기</a>
         </details>
         <label className="member-check">
           <input type="checkbox" checked={agree.agreeAge} onChange={() => toggle('agreeAge')} />
