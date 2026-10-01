@@ -7,6 +7,7 @@ import {
 } from '@/db/products';
 import { listAdminOrders } from '@/db/orders';
 import LoginForm from './login-form';
+import { OpsNav } from './ops-ui';
 import ImageUploader, { DetailImageUploader } from './image-uploader';
 import { PRODUCT_COLLECTIONS } from '@/app/catalog';
 
@@ -89,6 +90,7 @@ export default async function Admin({ searchParams }: AdminPageProps) {
       {!databaseReady ? (
         <p className="error">데이터베이스 배포 후 상품 관리가 활성화됩니다.</p>
       ) : null}
+      <OpsNav active="/admin" />
       <nav className="admin-dashboard-nav" aria-label="관리자 빠른 메뉴">
         <a href="#display"><b>진열 관리</b><span>메뉴별 상품 구성</span></a>
         <a href="#products"><b>상품 관리</b><span>{products.length}개 등록</span></a>

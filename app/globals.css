@@ -119,4 +119,20 @@ footer{margin-top:90px;background:#fafafa;border-color:#eee;padding-inline:24px}
 .member-sns-title{max-width:420px;margin:30px 0 4px}
 .member-panel .auth-buttons{display:grid;gap:8px;max-width:420px}
 .member-panel .kakao-signin,.member-panel .naver-signin,.member-panel .google-signin{max-width:none}
-.account-member-actions{display:grid;gap:8px;max-width:360px;margin:18px 0}
+.account-member-actions{display:grid;gap:8px;max-width:360px;margin:18px 0}/* 관리자 운영 도구: 매출·방문 분석, 재고·발주, 도매가 추적 */
+.ops-nav{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 28px}.ops-nav a{border:1px solid #e5e5e5;border-radius:999px;padding:9px 16px;font-size:14px;font-weight:700;color:#555;background:#fff}.ops-nav a.selected{background:#242429;border-color:#242429;color:#fff}
+.ops-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}.ops-head h1{margin:0 0 10px}.ops-head .note{margin:0;max-width:760px}
+.ops-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:0 0 6px}.ops-kpi{display:grid;gap:3px;background:#fff;border:1px solid #e5e5e5;border-radius:10px;padding:14px 16px}.ops-kpi span{font-size:13px;color:#777}.ops-kpi b{font-size:22px}.ops-kpi small{font-size:12px}
+.ops .admin-card h2{font-size:17px;margin:0 0 14px}
+.ops-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:0 14px}
+.ops-table{overflow-x:auto}.ops-table table,.ops-bars{width:100%;border-collapse:collapse;font-size:14px}.ops-table th,.ops-table td,.ops-bars td{text-align:left;padding:9px 10px;border-bottom:1px solid #eee;vertical-align:middle;white-space:nowrap}.ops-table th{font-size:12px;font-weight:600;color:#777;background:#fafafa}.ops-table td.wrap{white-space:normal;min-width:160px}.ops-table tr.best td{background:#f2faf5}
+.ops-bars td:last-child{text-align:right}.ops-bars .bar-cell{width:45%}.ops-bars .bar-cell i{display:block;height:8px;border-radius:4px;background:#d6336c;min-width:2px}
+.ops-chart{width:100%;height:auto}.ops-chart .bar{fill:#f3a5c0}.ops-chart .line{fill:none;stroke:#242429;stroke-width:2}.ops-chart text{font-size:11px;fill:#888}
+.ops-pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:700;margin-left:4px}.ops-pill.bad{background:#fdecec;color:#c92a2a}.ops-pill.warn{background:#fff4e0;color:#b26a00}.ops-pill.ok{background:#e6f5ec;color:#1f8a4c}.ops-pill.gray{background:#f2f2f2;color:#777}.ops-pill.accent{background:#fdebf1;color:#d6336c}
+.ops-up{color:#1f8a4c}.ops-down{color:#c92a2a}.ops-muted{color:#888}.ops-error{color:#c92a2a;max-width:240px;white-space:normal}.block{display:block;margin-top:2px}
+.ops-inline{display:inline-flex;gap:6px;align-items:center;margin:0}.ops input.qty{width:80px}.ops input.price{width:110px}.ops-inline input,.ops-inline select{border:1px solid #ddd;border-radius:5px;padding:7px 9px;font:inherit;font-size:13px}
+.ops-table button,.ops-head button{border:1px solid #ddd;border-radius:6px;padding:7px 12px;font-size:13px;font-weight:700;background:#fff;height:auto;margin:0;display:inline-block}.ops-table button.solid{background:#242429;border-color:#242429;color:#fff;padding:7px 12px}
+.ops button.ops-link{border:0;background:none;color:#888;padding:4px 6px;font-weight:500}.ops button.ops-link:hover{color:#c92a2a}.ops-actions{display:flex;gap:6px;align-items:center}
+.ops-spark{display:inline-flex;align-items:flex-end;gap:2px;height:22px}.ops-spark i{width:4px;background:#ccc;border-radius:1px}.ops-spark i:last-child{background:#d6336c}
+.ops-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}.ops-form .wide{grid-column:1/-1}.ops-check{display:flex;gap:8px;align-items:center;font-size:13px;color:#555;margin:6px 0 14px}
+@media (max-width:640px){.ops-form{grid-template-columns:1fr}.ops-two{grid-template-columns:1fr}.ops-kpi b{font-size:19px}}

@@ -7,8 +7,8 @@
 | 주소 | 서버 | 역할 | 상태 |
 |---|---|---|---|
 | `choose-c.com`, `www.choose-c.com` | Cloudflare Workers (`shop`) + D1 + R2 | 메인 쇼핑몰 | 배포됨 |
-| `choose-c.com/admin` | 같은 Worker | 상품 등록, 주문·리뷰·문의 관리 + (예정) 재고·발주, 도매가 추적, 매출·방문 분석 | 배포됨, 운영 기능 이전 예정 |
-| `fit.choose-c.com` (예정) | Cloudflare Worker `fit` (별도 저장소) | 독립 서비스: 여러 쇼핑몰 상품 AI 가상 피팅·비교 | 기획 |
+| `choose-c.com/admin` | 같은 Worker | 상품 등록, 주문·리뷰·문의 관리 + 매출·방문 분석, 재고·발주, 도매가 추적 | 코드 완료, **마이그레이션 0008 적용 후 배포 필요** |
+| `fit.choose-c.com` (예정) | Cloudflare Worker `fit` ([fit.choose-c 저장소](https://github.com/t01054532884-lang/fit.choose-c)) | 독립 서비스: 여러 쇼핑몰 상품 AI 가상 피팅·비교 | 기획 |
 
 > 2026-10-01 결정: 별도 traffic 서버(AWS)는 만들지 않는다. traffic 기능은 `choose-c.com/admin`으로 옮겨
 > 같은 D1 DB를 직접 쓰고, 고객용 새 사이트는 `fit.choose-c.com`으로 연다.
@@ -17,6 +17,7 @@
 
 | 날짜 | 내용 |
 |---|---|
+| 2026-10-01 | traffic 기능을 admin으로 이전: `/admin/insights`, `/admin/inventory`, `/admin/wholesale`, 방문 기록 `/api/collect`, 6시간마다 도매가 자동 확인(Cron), 입고 완료 시 재고 자동 증가. `/api/traffic/export` 삭제 |
 | 2026-10-01 | 계획 변경: traffic 기능은 admin으로 통합, 고객용 피팅 사이트는 `fit.choose-c.com` |
 | 2026-10-01 | 아이디·비밀번호 회원가입·로그인 (PBKDF2, 5회 실패 시 10분 잠금) |
 | 2026-10-01 | CHOOSE-C 리브랜딩, choose-c.com 커스텀 도메인으로 Cloudflare 배포 |
@@ -24,17 +25,28 @@
 | 2026-09-30 | `traffic/` 운영 대시보드 추가 (Python + SQLite, 테스트 18개) |
 | 2026-09-08 ~ 09-11 | 쇼핑몰 기본 기능: 카탈로그·컬렉션, 상품 상세·리뷰·사이즈, 쿠폰·장바구니·주문, 재고, 카카오·구글 로그인, 관리자 화면 |
 
+## 다른 컴퓨터에서 이어서 하기
+
+```bash
+git clone https://github.com/t01054532884-lang/somi-mall.git
+git clone https://github.com/t01054532884-lang/fit.choose-c.git
+cd somi-mall
+pnpm install
+pnpm test:ops      # 운영 도구 계산 테스트
+pnpm build
+```
+
+필요한 것: Node.js 22.18 이상(24 권장), pnpm, Cloudflare 로그인(`npx wrangler login`).
+
 ## 해야 할 일
 
-### traffic 기능을 admin으로 이전
-- [ ] D1 마이그레이션: 도매처, 도매 상품, 도매가 기록, 발주, 방문 기록, 설정(환율·발주 기준) 테이블
-- [ ] admin 메뉴 추가: 재고·발주 (판매 속도, 소진일, 발주 추천 수량, 추천 도매처, CSV 내려받기)
-- [ ] admin 메뉴 추가: 도매가 추적 (KRW·CNY·JPY·USD 원화 원가, 변동률, 최저 원가, 마진)
-- [ ] admin 메뉴 추가: 매출·방문 분석 (매출, 주문, 객단가, 방문자, 전환율, 유입 경로, 인기 상품)
-- [ ] 방문 추적을 쇼핑몰 내부 기록으로 변경 (외부 스크립트 대신 같은 사이트의 `/api/collect`)
-- [ ] Cloudflare Cron Triggers로 도매가 자동 확인
-- [ ] 이전 후 `traffic/` Python 코드와 `/api/traffic/export` 정리 (계산 로직 검증용으로 잠시 유지)
-- 참고: 계산 방식은 `traffic/README.md`의 "발주 추천 계산"을 그대로 따른다
+### admin 운영 도구 배포 (다음에 할 일)
+- [ ] 원격 DB에 마이그레이션 적용: `npx wrangler d1 migrations apply somimall-db --remote` (0008_operations)
+- [ ] 배포: `pnpm build` → `npx wrangler deploy --config dist/server/wrangler.json`
+- [ ] `choose-c.com/admin/insights`, `/admin/inventory`, `/admin/wholesale` 화면 확인
+- [ ] 도매처·도매 상품 등록, 환율 실제 값으로 변경
+- [ ] Cloudflare 대시보드 → Workers → shop → 설정 → 트리거에서 Cron(6시간마다) 등록 확인
+- 완료: D1 테이블, 3개 메뉴, 방문 기록, Cron 처리기, 발주 CSV, 계산 테스트 8개, SQL 쿼리 44개 검증
 
 ### fit.choose-c.com (독립 서비스, 2026-10-01 결정)
 쇼핑몰과 별개 서비스로 키운다. 피팅 사이트가 모은 고객이 CHOOSE-C 쇼핑몰 성장에도 도움이 되는 구조.
@@ -47,7 +59,7 @@
 | 회원 | 쇼핑몰과 분리된 자체 회원 |
 | CHOOSE-C 상품 | 다른 제휴 쇼핑몰처럼 상품 피드로 연결 |
 
-- [ ] 새 저장소 생성
+- [x] 새 저장소 생성: https://github.com/t01054532884-lang/fit.choose-c
 - [ ] Cloudflare DNS와 Worker 라우트 연결
 - [ ] 아래 "다음 기능: 가상 피팅" 계획대로 MVP 개발
 

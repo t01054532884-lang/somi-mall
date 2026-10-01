@@ -2,7 +2,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "shop",
-  "main": "vinext/server/fetch-handler",
+  "main": "./worker/index.ts",
   "compatibility_date": "2026-05-01",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": false,
@@ -24,5 +24,7 @@
       "bucket_name": "somimall-images"
     }
   ],
+  // 6시간마다 도매가 자동 확인 (worker/index.ts의 scheduled)
+  "triggers": { "crons": ["0 */6 * * *"] },
   "observability": { "enabled": true }
 }

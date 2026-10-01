@@ -9,6 +9,7 @@ import {
   Truck,
 } from 'lucide-react';
 import { money, type Product } from '@/app/catalog';
+import { track } from '@/app/components/site-tracker';
 import type { ProductInquiry, ProductReview } from '@/db/products';
 
 type Tab = '상품정보' | '리뷰' | '사이즈' | '문의';
@@ -68,6 +69,7 @@ export default function ProductDetail({
       requireMember(`/product/${product.id}`);
       return;
     }
+    track('add_to_cart', { product_id: product.id });
     const old = JSON.parse(localStorage.getItem('somi_cart') || '[]');
     localStorage.setItem(
       'somi_cart',

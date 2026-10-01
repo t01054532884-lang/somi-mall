@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import './detail.css';
+import SiteTracker from './components/site-tracker';
 export const metadata:Metadata={title:'CHOOSE-C | 취향을 발견하는 쇼핑',description:'매일 입고 싶은 스타일. CHOOSE-C 패션 셀렉트숍 프리뷰.'};
-export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="ko"><body>{children}</body></html>}
+export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="ko"><body>{children}<SiteTracker /></body></html>}
