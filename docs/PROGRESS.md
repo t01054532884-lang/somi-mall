@@ -1,6 +1,6 @@
 # CHOOSE-C 진행 현황
 
-마지막 업데이트: 2026-10-02
+마지막 업데이트: 2026-10-02 (저녁)
 
 ## 서비스 구성
 
@@ -52,6 +52,8 @@ pnpm build
 
 ### fit.choose-c.com (독립 서비스, 2026-10-01 결정)
 쇼핑몰과 별개 서비스로 키운다. 피팅 사이트가 모은 고객이 CHOOSE-C 쇼핑몰 성장에도 도움이 되는 구조.
+
+> **피팅 서비스의 자세한 진행 현황과 다음 할 일은 [fit.choose-c 저장소의 docs/PROGRESS.md](https://github.com/t01054532884-lang/fit.choose-c/blob/main/docs/PROGRESS.md)에 있다.** (2026-10-02: 피팅 AI 후보 4곳 선정, Perfect Corp 연동 준비, 아바타 방식 결정, 첫 테스트 대기)
 
 | 항목 | 결정 |
 |---|---|
