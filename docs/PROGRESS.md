@@ -8,7 +8,7 @@
 |---|---|---|---|
 | `choose-c.com`, `www.choose-c.com` | Cloudflare Workers (`shop`) + D1 + R2 | 메인 쇼핑몰 | 배포됨 |
 | `choose-c.com/admin` | 같은 Worker | 상품 등록, 주문·리뷰·문의 관리 + 매출·방문 분석, 재고·발주, 도매가 추적 | 배포됨 (2026-10-02) |
-| `fit.choose-c.com` (예정) | Cloudflare Worker `fit` ([fit.choose-c 저장소](https://github.com/t01054532884-lang/fit.choose-c)) | 독립 서비스: 여러 쇼핑몰 상품 AI 가상 피팅·비교 | 기획 |
+| `fit.choose-c.com` | Cloudflare Worker `fit` ([fit.choose-c 저장소](https://github.com/t01054532884-lang/fit.choose-c)) | 독립 서비스: AI 얼굴 10종×체형 3종 모델에 쇼핑몰 옷 가상 피팅, 판매자 착용컷 | **미리보기 배포 (2026-10-04, 미리보기 키 필요)** |
 
 > 2026-10-01 결정: 별도 traffic 서버(AWS)는 만들지 않는다. traffic 기능은 `choose-c.com/admin`으로 옮겨
 > 같은 D1 DB를 직접 쓰고, 고객용 새 사이트는 `fit.choose-c.com`으로 연다.
